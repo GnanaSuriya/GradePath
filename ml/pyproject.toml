@@ -1,0 +1,2 @@
+[tool.vercel]
+entrypoint = "ml_service:app"
