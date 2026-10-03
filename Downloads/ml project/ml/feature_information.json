@@ -1,0 +1,30 @@
+{
+    "features": [
+        "age",
+        "gender",
+        "quiz1_marks",
+        "quiz2_marks",
+        "quiz3_marks",
+        "total_assignments",
+        "midterm_marks",
+        "previous_gpa",
+        "total_lectures",
+        "lectures_attended",
+        "total_lab_sessions",
+        "labs_attended"
+    ],
+    "types": {
+        "age": "int64",
+        "gender": "object",
+        "quiz1_marks": "float64",
+        "quiz2_marks": "float64",
+        "quiz3_marks": "float64",
+        "total_assignments": "int64",
+        "midterm_marks": "float64",
+        "previous_gpa": "float64",
+        "total_lectures": "int64",
+        "lectures_attended": "int64",
+        "total_lab_sessions": "int64",
+        "labs_attended": "int64"
+    }
+}

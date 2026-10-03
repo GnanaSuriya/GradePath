@@ -1,0 +1,41 @@
+{
+    "target": "final_marks",
+    "gpa_scale": "4.0",
+    "features": [
+        "age",
+        "gender",
+        "quiz1_marks",
+        "quiz2_marks",
+        "quiz3_marks",
+        "total_assignments",
+        "midterm_marks",
+        "previous_gpa",
+        "total_lectures",
+        "lectures_attended",
+        "total_lab_sessions",
+        "labs_attended"
+    ],
+    "target_range": "final marks",
+    "model_type": "RandomForestRegressor",
+    "random_state": 42,
+    "dataset_row_count": 300,
+    "dataset_column_count": 16,
+    "training_date": "2026-10-03 04:31:37",
+    "test_size": 0.2,
+    "evaluation_metrics": {
+        "test_mae": 9.91931216933825,
+        "test_rmse": 12.008720406397645,
+        "test_r2": -0.013577283248322747
+    },
+    "cv_metrics": {
+        "cv_mean_r2": -0.14350492560921135,
+        "cv_std_r2": 0.07091595288864318
+    },
+    "model_limitations": "This is an experimental prediction model with limitations in generalization due to the small size of the educational dataset. Performance scores suggest predictive power is indicative rather than absolute, and it must only be used as a guideline companion.",
+    "expected_gpa_scale": "The model strictly expects input 'previous_gpa' on a 4.0 scale. Do not feed a 10.0 scale system parameter.",
+    "preprocessing_information": {
+        "numerical_imputer": "Median strategy",
+        "numerical_scaler": "StandardScaler",
+        "categorical_encoder": "OneHotEncoder (handle_unknown='ignore')"
+    }
+}
