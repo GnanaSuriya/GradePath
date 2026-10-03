@@ -1,0 +1,14 @@
+backend/src/index.ts
+backend/src/middleware/auth.ts
+backend/src/routes/auth.ts
+backend/vercel.json
+frontend/src/context/AuthContext.tsx
+frontend/src/pages/CGPATracker.tsx
+frontend/src/pages/Dashboard.tsx
+frontend/src/pages/FutureProjection.tsx
+frontend/src/pages/GPACalculator.tsx
+frontend/src/pages/MLPredictor.tsx
+frontend/src/pages/Onboarding.tsx
+frontend/src/pages/Profile.tsx
+frontend/src/pages/SemesterHistory.tsx
+frontend/src/pages/Settings.tsx
