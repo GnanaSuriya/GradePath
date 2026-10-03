@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+node_modules/
+__pycache__/
+*.py[cod]
+dist/
+build/
+.vercel/
+*.sqlite
+*.sqlite3
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db
