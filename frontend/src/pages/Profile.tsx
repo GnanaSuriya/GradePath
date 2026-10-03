@@ -21,7 +21,7 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/profile`, {
+      const res = await axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProfile(res.data);
@@ -54,7 +54,7 @@ const Profile = () => {
       if (payload.current_semester) {
          payload.completed_semesters = Number(payload.current_semester) - 1;
       }
-      await axios.post(`${import.meta.env.VITE_API_URL}/profile`, payload, {
+      await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSuccessMsg('Profile updated successfully.');

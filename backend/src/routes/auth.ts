@@ -4,7 +4,10 @@ import jwt from 'jsonwebtoken';
 import db from '../db';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is missing');
+}
 
 router.post('/google', async (req, res) => {
   const { access_token } = req.body;

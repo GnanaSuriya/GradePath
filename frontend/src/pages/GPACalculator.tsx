@@ -26,8 +26,8 @@ const GPACalculator = () => {
         const headers = { Authorization: `Bearer ${token}` };
         
         const [subRes, profRes] = await Promise.all([
-          axios.get(`${import.meta.env.VITE_API_URL}/current-semester/subjects`, { headers }),
-          axios.get(`${import.meta.env.VITE_API_URL}/profile`, { headers })
+          axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects`, { headers }),
+          axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, { headers })
         ]);
         
         setSubjects(subRes.data);
@@ -46,7 +46,7 @@ const GPACalculator = () => {
     setIsParsing(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/timetable/parse`, { text: pasteText }, {
+      const res = await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/timetable/parse`, { text: pasteText }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPreviewSubjects(res.data.subjects);
@@ -63,13 +63,13 @@ const GPACalculator = () => {
   const handleSavePreview = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${import.meta.env.VITE_API_URL}/current-semester/subjects/batch`, { subjects: previewSubjects }, {
+      await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects/batch`, { subjects: previewSubjects }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPreviewSubjects([]);
       setPasteText('');
       // Reload subjects
-      const subRes = await axios.get(`${import.meta.env.VITE_API_URL}/current-semester/subjects`, { headers: { Authorization: `Bearer ${token}` } });
+      const subRes = await axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects`, { headers: { Authorization: `Bearer ${token}` } });
       setSubjects(subRes.data);
     } catch (err) {
       alert('Error saving subjects');
@@ -80,7 +80,7 @@ const GPACalculator = () => {
     const pts = gradePoints[grade] || 0;
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${import.meta.env.VITE_API_URL}/current-semester/subjects/${id}`, { grade, grade_points: pts }, {
+      await axios.put(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects/${id}`, { grade, grade_points: pts }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSubjects(subjects.map(s => s.id === id ? { ...s, grade, grade_points: pts } : s));
@@ -92,7 +92,7 @@ const GPACalculator = () => {
   const deleteSubject = async (id: number) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${import.meta.env.VITE_API_URL}/current-semester/subjects/${id}`, {
+      await axios.delete(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSubjects(subjects.filter(s => s.id !== id));

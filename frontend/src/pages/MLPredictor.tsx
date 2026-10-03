@@ -27,7 +27,7 @@ const MLPredictor = () => {
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
         
-        const profRes = await axios.get(`${import.meta.env.VITE_API_URL}/profile`, { headers });
+        const profRes = await axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, { headers });
         const profile = profRes.data;
         
         setFormData((prev: any) => ({
@@ -55,7 +55,7 @@ const MLPredictor = () => {
     try {
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/ml/predict`, formData, { headers });
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api'}/ml/predict`, formData, { headers });
       setPrediction(res.data.predicted_final_marks);
     } catch (err: any) {
       setError(err.response?.data?.detail || err.response?.data?.error || 'ML model unavailable. Please check the Python ML service.');

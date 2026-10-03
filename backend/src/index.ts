@@ -7,7 +7,12 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://gradepath-frontend.vercel.app'
+];
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 // Database initialization moved to out-of-band scripts
@@ -32,6 +37,10 @@ app.use('/api/semesters', semestersRouter);
 app.use('/api/current-semester/subjects', subjectsRouter);
 app.use('/api/timetable', timetableRouter);
 
-app.listen(PORT, () => {
-  console.log(`Backend server running on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Backend server running on port ${PORT}`);
+  });
+}
+
+export default app;

@@ -22,8 +22,8 @@ const Settings = () => {
         const headers = { Authorization: `Bearer ${token}` };
         
         const [profileRes, semRes] = await Promise.all([
-          axios.get(`${import.meta.env.VITE_API_URL}/profile`, { headers }),
-          axios.get(`${import.meta.env.VITE_API_URL}/semesters`, { headers })
+          axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, { headers }),
+          axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/semesters`, { headers })
         ]);
         
         setProfile(profileRes.data);

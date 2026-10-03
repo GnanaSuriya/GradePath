@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, {
+      axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(res => {
         setUser(res.data);
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = useGoogleLogin({
     onSuccess: async (codeResponse) => {
       try {
-        const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/google`, {
+        const res = await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/auth/google`, {
           access_token: codeResponse.access_token
         });
         localStorage.setItem('token', res.data.token);

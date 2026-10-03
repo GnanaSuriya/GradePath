@@ -13,7 +13,7 @@ const SemesterHistory = () => {
   const fetchSemesters = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/semesters`, {
+      const res = await axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/semesters`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Filter out the 'current semester' dummy record if it exists
@@ -33,7 +33,7 @@ const SemesterHistory = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${import.meta.env.VITE_API_URL}/semesters`, newSem, {
+      await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/semesters`, newSem, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchSemesters();
@@ -46,7 +46,7 @@ const SemesterHistory = () => {
   const handleDelete = async (id: number) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${import.meta.env.VITE_API_URL}/semesters/${id}`, {
+      await axios.delete(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/semesters/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchSemesters();
