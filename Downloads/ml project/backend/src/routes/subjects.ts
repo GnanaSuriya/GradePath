@@ -1,16 +1,8 @@
 import { Router } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import db from '../db';
 
 const router = Router();
-let db: any;
-(async () => {
-  db = await open({
-    filename: process.env.DATABASE_URL || './database/gradepath.sqlite',
-    driver: sqlite3.Database
-  });
-})();
 
 // Get current semester subjects for user. 
 // We use a special semester_id = -1 for 'current semester' since it's not a completed semester in the Semester table yet. Or we can just join. Let's use a dummy semester for the current one, or just add a user_id to Subject to make it easier, wait, Subject has semester_id.
@@ -19,10 +11,10 @@ let db: any;
 // To keep it simple, I will create a semester with semester_number = 999 (Current) for the user if it doesn't exist.
 
 async function getCurrentSemesterId(userId: string) {
-  let sem = await db.get('SELECT id FROM Semester WHERE user_id = ? AND semester_number = 999', [userId]);
+  let sem = (await db.query('SELECT id FROM "Semester" WHERE user_id = $1 AND semester_number = 999', [userId])).rows[0];
   if (!sem) {
-    const result = await db.run('INSERT INTO Semester (user_id, semester_number, term_name) VALUES (?, 999, "Current")', [userId]);
-    return result.lastID;
+    const result = await db.query('INSERT INTO "Semester" (user_id, semester_number, term_name) VALUES ($1, 999, \'Current\') RETURNING id', [userId]);
+    return result.rows[0].id;
   }
   return sem.id;
 }
@@ -31,7 +23,7 @@ async function getCurrentSemesterId(userId: string) {
 router.get('/', authenticate, async (req: AuthRequest, res) => {
   try {
     const semId = await getCurrentSemesterId(req.user?.id as string);
-    const subjects = await db.all('SELECT * FROM Subject WHERE semester_id = ?', [semId]);
+    const subjects = (await db.query('SELECT * FROM "Subject" WHERE semester_id = $1', [semId])).rows;
     res.json(subjects);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -47,8 +39,8 @@ router.post('/batch', authenticate, async (req: AuthRequest, res) => {
     // Clear old subjects for current semester if overriding? The prompt says "save to current semester".
     // For now, let's just insert them.
     for (const sub of subjects) {
-       await db.run(
-         'INSERT INTO Subject (semester_id, name, code, credits, grade) VALUES (?, ?, ?, ?, ?)', 
+       await db.query(
+         'INSERT INTO "Subject" (semester_id, name, code, credits, grade) VALUES ($1, $2, $3, $4, $5)', 
          [semId, sub.name, sub.code, sub.credits, null]
        );
     }
@@ -64,8 +56,8 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
     const semId = await getCurrentSemesterId(req.user?.id as string);
     // ensure the subject belongs to the user's current semester
-    await db.run(
-      'UPDATE Subject SET grade = ?, grade_points = ? WHERE id = ? AND semester_id = ?', 
+    await db.query(
+      'UPDATE "Subject" SET grade = $1, grade_points = $2 WHERE id = $3 AND semester_id = $4', 
       [grade, grade_points, req.params.id, semId]
     );
     res.json({ success: true });
@@ -78,7 +70,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
     const semId = await getCurrentSemesterId(req.user?.id as string);
-    await db.run('DELETE FROM Subject WHERE id = ? AND semester_id = ?', [req.params.id, semId]);
+    await db.query('DELETE FROM "Subject" WHERE id = $1 AND semester_id = $2', [req.params.id, semId]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });

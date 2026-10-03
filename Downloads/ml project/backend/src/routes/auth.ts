@@ -1,19 +1,10 @@
 import { Router } from 'express';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import db from '../db';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-
-let db: any;
-(async () => {
-  db = await open({
-    filename: process.env.DATABASE_URL || './database/gradepath.sqlite',
-    driver: sqlite3.Database
-  });
-})();
 
 router.post('/google', async (req, res) => {
   const { access_token } = req.body;
@@ -28,15 +19,15 @@ router.post('/google', async (req, res) => {
     const { sub: id, name, email, picture } = googleRes.data;
 
     // Check if user exists
-    let user = await db.get('SELECT * FROM User WHERE id = ?', [id]);
+    let user = (await db.query('SELECT * FROM "User" WHERE id = $1', [id])).rows[0];
     
     if (!user) {
-      await db.run('INSERT INTO User (id, email, name, picture) VALUES (?, ?, ?, ?)', [id, email, name, picture]);
+      await db.query('INSERT INTO "User" (id, email, name, picture) VALUES ($1, $2, $3, $4)', [id, email, name, picture]);
       user = { id, email, name, picture };
     }
 
     // Check if onboarding is complete
-    const profile = await db.get('SELECT * FROM AcademicProfile WHERE user_id = ?', [id]);
+    const profile = (await db.query('SELECT * FROM "AcademicProfile" WHERE user_id = $1', [id])).rows[0];
     const needsOnboarding = !profile;
 
     const token = jwt.sign({ id }, JWT_SECRET, { expiresIn: '7d' });
@@ -58,10 +49,10 @@ router.get('/me', async (req, res) => {
   const token = authHeader.split(' ')[1];
   try {
     const decoded: any = jwt.verify(token, JWT_SECRET);
-    const user = await db.get('SELECT * FROM User WHERE id = ?', [decoded.id]);
+    const user = (await db.query('SELECT * FROM "User" WHERE id = $1', [decoded.id])).rows[0];
     if (!user) return res.status(404).json({ error: 'User not found' });
     
-    const profile = await db.get('SELECT * FROM AcademicProfile WHERE user_id = ?', [decoded.id]);
+    const profile = (await db.query('SELECT * FROM "AcademicProfile" WHERE user_id = $1', [decoded.id])).rows[0];
     
     res.json({ ...user, needsOnboarding: !profile });
   } catch (err) {

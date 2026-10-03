@@ -1,21 +1,13 @@
 import { Router } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import db from '../db';
 
 const router = Router();
-let db: any;
-(async () => {
-  db = await open({
-    filename: process.env.DATABASE_URL || './database/gradepath.sqlite',
-    driver: sqlite3.Database
-  });
-})();
 
 router.get('/', authenticate, async (req: AuthRequest, res) => {
   try {
-    const profile = await db.get('SELECT * FROM AcademicProfile WHERE user_id = ?', [req.user?.id]);
-    const user = await db.get('SELECT name, email, picture FROM User WHERE id = ?', [req.user?.id]);
+    const profile = (await db.query('SELECT * FROM "AcademicProfile" WHERE user_id = $1', [req.user?.id])).rows[0];
+    const user = (await db.query('SELECT name, email, picture FROM "User" WHERE id = $1', [req.user?.id])).rows[0];
     
     if (!profile) {
        if (user) return res.json({ ...user });
@@ -32,12 +24,23 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
   
   try {
     if (name) {
-      await db.run('UPDATE User SET name = ? WHERE id = ?', [name, req.user?.id]);
+      await db.query('UPDATE "User" SET name = $1 WHERE id = $2', [name, req.user?.id]);
     }
-    await db.run(
-      `INSERT OR REPLACE INTO AcademicProfile 
+    await db.query(
+      `INSERT INTO "AcademicProfile" 
       (user_id, university, degree, specialization, total_semesters, expected_grad_year, total_program_credits, grading_system, current_semester, completed_semesters, gender) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ON CONFLICT (user_id) DO UPDATE SET
+      university = EXCLUDED.university,
+      degree = EXCLUDED.degree,
+      specialization = EXCLUDED.specialization,
+      total_semesters = EXCLUDED.total_semesters,
+      expected_grad_year = EXCLUDED.expected_grad_year,
+      total_program_credits = EXCLUDED.total_program_credits,
+      grading_system = EXCLUDED.grading_system,
+      current_semester = EXCLUDED.current_semester,
+      completed_semesters = EXCLUDED.completed_semesters,
+      gender = EXCLUDED.gender`,
       [req.user?.id, university, degree, specialization, total_semesters, expected_grad_year, total_program_credits, grading_system, current_semester, completed_semesters, gender]
     );
     res.json({ success: true });
