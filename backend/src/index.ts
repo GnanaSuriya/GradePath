@@ -10,9 +10,21 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://gradepath-frontend.vercel.app'
+  'https://gradepath-frontend.vercel.app',
+  'https://frontend-psi-ashen-41.vercel.app'
 ];
-app.use(cors({ origin: allowedOrigins }));
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 app.use(express.json());
 
 // Database initialization moved to out-of-band scripts
