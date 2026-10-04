@@ -104,7 +104,7 @@ const MLPredictor = () => {
             
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 border border-indigo-100">
+                <div className="w-10 h-10 bg-primary-container text-on-primary-container rounded-xl flex items-center justify-center text-primary border border-indigo-100">
                   <BrainCircuit size={20} />
                 </div>
                 <div>
@@ -119,7 +119,7 @@ const MLPredictor = () => {
                   total_assignments: '6', midterm_marks: '92', previous_gpa: '3.8', 
                   total_lectures: '40', lectures_attended: '38', total_lab_sessions: '12', labs_attended: '12'
                 })}
-                className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors border border-indigo-100"
+                className="text-xs font-bold text-primary bg-primary-container text-on-primary-container hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors border border-indigo-100"
               >
                 Load Sample Data
               </button>
@@ -251,7 +251,7 @@ const MLPredictor = () => {
                 <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-1 block">Output</span>
                 <h2 className="text-xl font-bold text-white tracking-tight">Prediction Results</h2>
               </div>
-              <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm border border-white/10"><Sparkles size={20} className="text-indigo-300" /></div>
+              <div className="p-2 bg-surface-container-lowest/10 rounded-xl backdrop-blur-sm border border-white/10"><Sparkles size={20} className="text-indigo-300" /></div>
             </div>
 
             {error ? (
@@ -274,11 +274,11 @@ const MLPredictor = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                  <div className="bg-surface-container-lowest/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
                     <div className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider mb-1">Confidence Score</div>
                     <div className="text-xl font-bold text-white flex items-center gap-2">94.2% <CheckCircle2 size={16} className="text-green-400" /></div>
                   </div>
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                  <div className="bg-surface-container-lowest/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
                     <div className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider mb-1">Risk Factor</div>
                     <div className="text-xl font-bold text-white flex items-center gap-2">Low <Activity size={16} className="text-blue-400" /></div>
                   </div>

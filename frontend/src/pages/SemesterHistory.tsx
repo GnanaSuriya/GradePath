@@ -89,7 +89,7 @@ const SemesterHistory = () => {
 
           {semesters.length === 0 ? (
             <div className="text-center py-16 bg-surface-container-low rounded-DEFAULT border border-dashed border-outline-variant">
-              <div className="w-16 h-16 bg-gray-50 text-outline rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-surface-container-low text-outline rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock size={32} />
               </div>
               <h3 className="text-lg font-bold text-on-surface mb-2">No history found</h3>
@@ -159,7 +159,7 @@ const SemesterHistory = () => {
                     required 
                     type="number" 
                     min="1" max="20" 
-                    className="w-full bg-gray-50 border border-gray-200 text-on-surface rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all font-bold" 
+                    className="w-full bg-surface-container-low border border-outline-variant text-on-surface rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all font-bold" 
                     value={newSem.semester_number || ''} 
                     onChange={e => setNewSem({...newSem, semester_number: parseInt(e.target.value)})} 
                   />
@@ -173,7 +173,7 @@ const SemesterHistory = () => {
                     required 
                     type="number" 
                     step="0.01" min="0" max="10"
-                    className="w-full bg-gray-50 border border-gray-200 text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all font-bold" 
+                    className="w-full bg-surface-container-low border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all font-bold" 
                     value={newSem.gpa || ''} 
                     onChange={e => setNewSem({...newSem, gpa: parseFloat(e.target.value)})} 
                     placeholder="e.g. 8.5"
@@ -185,7 +185,7 @@ const SemesterHistory = () => {
                     required 
                     type="number" 
                     min="1" max="50"
-                    className="w-full bg-gray-50 border border-gray-200 text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all font-bold" 
+                    className="w-full bg-surface-container-low border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all font-bold" 
                     value={newSem.credits || ''} 
                     onChange={e => setNewSem({...newSem, credits: parseInt(e.target.value)})} 
                     placeholder="e.g. 22"
@@ -213,11 +213,11 @@ const SemesterHistory = () => {
             </div>
             
             <div className="space-y-4">
-              <div className="flex justify-between items-center border-b border-gray-700 pb-3">
+              <div className="flex justify-between items-center border-b border-outline pb-3">
                 <span className="text-sm text-outline">Total Credits</span>
                 <span className="font-bold">{totalCredits}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-gray-700 pb-3">
+              <div className="flex justify-between items-center border-b border-outline pb-3">
                 <span className="text-sm text-outline">Total Grade Points</span>
                 <span className="font-bold">{totalPoints.toFixed(1)}</span>
               </div>

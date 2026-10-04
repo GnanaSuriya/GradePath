@@ -317,7 +317,7 @@ const GPACalculator = () => {
               <div className="bg-primary rounded-DEFAULT p-6 shadow-sm text-on-primary flex flex-col justify-between">
                 <div>
                   <h2 className="font-bold mb-4 flex items-center gap-2 opacity-90">
-                    <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs">3</span>
+                    <span className="w-6 h-6 rounded-full bg-surface-container-lowest/20 flex items-center justify-center text-xs">3</span>
                     Calculation Result
                   </h2>
                   <div className="flex items-baseline gap-2">

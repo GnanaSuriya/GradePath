@@ -239,9 +239,9 @@ const CGPATracker = () => {
                   <div key={row.semester_number} className="p-4 rounded-xl border border-outline-variant bg-surface-container-lowest hover:bg-surface hover:border-primary hover:shadow-sm transition-all group">
                     <div className="flex justify-between items-center mb-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-on-surface bg-surface-container-low px-2 py-1 rounded-lg border border-gray-200 shadow-sm">Sem {row.semester_number}</span>
+                        <span className="text-xs font-bold text-on-surface bg-surface-container-low px-2 py-1 rounded-lg border border-outline-variant shadow-sm">Sem {row.semester_number}</span>
                       </div>
-                      <span className="text-[10px] font-bold text-outline bg-surface-container-low px-2 py-0.5 rounded-full border border-gray-100">{row.credits} Cr</span>
+                      <span className="text-[10px] font-bold text-outline bg-surface-container-low px-2 py-0.5 rounded-full border border-surface-container-high">{row.credits} Cr</span>
                     </div>
                     
                     <div className="flex justify-between items-end">
@@ -259,7 +259,7 @@ const CGPATracker = () => {
               </div>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+            <div className="mt-4 pt-4 border-t border-surface-container-high text-center">
               <Link to="/history" className="text-xs font-bold text-primary hover:text-primary flex items-center justify-center gap-1">
                 Edit Historical Data <ChevronRight size={14} />
               </Link>

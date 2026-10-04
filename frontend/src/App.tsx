@@ -21,13 +21,13 @@ const SidebarItem = ({ to, icon: Icon, label, badge, badgeColor, end, onClick }:
       onClick={onClick}
       className={({ isActive }) =>
         `flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-xl ${
-          isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900'
+          isActive ? 'bg-primary text-on-primary text-white shadow-md shadow-blue-500/20' : 'text-on-surface-variant hover:bg-surface-container/80 hover:text-on-surface'
         }`
       }
     >
       {({ isActive }) => (
         <>
-          <Icon size={18} className={isActive ? 'text-white' : 'text-gray-500'} strokeWidth={isActive ? 2.5 : 2} />
+          <Icon size={18} className={isActive ? 'text-white' : 'text-on-surface-variant'} strokeWidth={isActive ? 2.5 : 2} />
           <span className="flex-1">{label}</span>
           {badge && (
             <span
@@ -54,24 +54,24 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-gray-900/50 z-40 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
+        <div className="fixed inset-0 bg-inverse-surface/50 z-40 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col ${
+        className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-surface-container-lowest border-r border-outline-variant transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex items-center gap-3 p-6">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm shadow-blue-600/20">
+          <div className="w-10 h-10 bg-primary text-on-primary rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm shadow-blue-600/20">
             <GraduationCap size={22} strokeWidth={2.5} />
           </div>
           <div>
-            <h1 className="font-bold text-[18px] text-gray-900 leading-tight">GradePath</h1>
-            <p className="text-[10px] font-bold text-blue-600 tracking-wider uppercase">Academic Planner</p>
+            <h1 className="font-bold text-[18px] text-on-surface leading-tight">GradePath</h1>
+            <p className="text-[10px] font-bold text-primary tracking-wider uppercase">Academic Planner</p>
           </div>
-          <button className="lg:hidden ml-auto text-gray-500" onClick={() => setMobileMenuOpen(false)}>
+          <button className="lg:hidden ml-auto text-on-surface-variant" onClick={() => setMobileMenuOpen(false)}>
             <X size={20} />
           </button>
         </div>
@@ -87,7 +87,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <SidebarItem to="/import" icon={UploadCloud} label="VTOP Import" badge="New" onClick={() => setMobileMenuOpen(false)} />
           <SidebarItem to="/predictor" icon={Sparkles} label="ML Prediction" badge="Beta" badgeColor="green" onClick={() => setMobileMenuOpen(false)} />
           
-          <div className="mt-auto mb-2 border-t border-gray-100 pt-4" />
+          <div className="mt-auto mb-2 border-t border-surface-container-high pt-4" />
           <SidebarItem to="/profile" icon={User} label="Profile" onClick={() => setMobileMenuOpen(false)} />
           <SidebarItem to="/settings" icon={Settings} label="Settings" onClick={() => setMobileMenuOpen(false)} />
         </div>
@@ -96,44 +96,44 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Header */}
-        <header className="h-[72px] bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8 shrink-0 z-30">
+        <header className="h-[72px] bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-4 lg:px-8 shrink-0 z-30">
           <div className="flex items-center gap-4">
-            <button className="lg:hidden p-2 -ml-2 text-gray-600 rounded-lg hover:bg-gray-100" onClick={() => setMobileMenuOpen(true)}>
+            <button className="lg:hidden p-2 -ml-2 text-on-surface-variant rounded-lg hover:bg-surface-container" onClick={() => setMobileMenuOpen(true)}>
               <Menu size={20} />
             </button>
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-200 text-sm font-medium text-gray-700">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-full border border-outline-variant text-sm font-medium text-on-surface">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
               Fall 2024 • Semester 5
-              <span className="text-blue-600 ml-1">On Track</span>
+              <span className="text-primary ml-1">On Track</span>
             </div>
           </div>
           
           <div className="flex items-center gap-3 lg:gap-6">
-            <button className="hidden md:flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+            <button className="hidden md:flex items-center gap-2 text-sm font-medium text-on-surface-variant hover:text-on-surface bg-surface-container-low px-3 py-1.5 rounded-lg border border-outline-variant">
               <UploadCloud size={16} />
               VIT Chennai
               <ChevronDown size={14} />
             </button>
             
             <div className="flex items-center gap-2">
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+              <button className="p-2 text-outline hover:text-on-surface-variant transition-colors">
                 <Sun size={20} />
               </button>
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors relative">
+              <button className="p-2 text-outline hover:text-on-surface-variant transition-colors relative">
                 <Bell size={20} />
                 <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
               </button>
             </div>
             
-            <div className="flex items-center gap-3 border-l border-gray-200 pl-3 lg:pl-6">
+            <div className="flex items-center gap-3 border-l border-outline-variant pl-3 lg:pl-6">
               <div className="hidden sm:block text-right">
-                <div className="text-sm font-bold text-gray-900">{user?.name || 'Student'}</div>
-                <div className="text-[11px] font-medium text-gray-500">B.Tech CSE • 9.12</div>
+                <div className="text-sm font-bold text-on-surface">{user?.name || 'Student'}</div>
+                <div className="text-[11px] font-medium text-on-surface-variant">B.Tech CSE • 9.12</div>
               </div>
               {user?.picture ? (
-                <img src={user.picture} alt="Profile" className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm" />
+                <img src={user.picture} alt="Profile" className="w-10 h-10 rounded-full object-cover border border-outline-variant shadow-sm" />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold border border-blue-200">
+                <div className="w-10 h-10 rounded-full bg-blue-100 text-primary flex items-center justify-center font-bold border border-blue-200">
                   {(user?.name || 'S').charAt(0)}
                 </div>
               )}
@@ -164,20 +164,20 @@ function AppContent() {
   if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] p-4">
-        <div className="bg-white rounded-3xl p-10 max-w-md w-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 text-center flex flex-col items-center">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30 mb-6">
+        <div className="bg-surface-container-lowest rounded-3xl p-10 max-w-md w-full shadow-lg border border-surface-container-high text-center flex flex-col items-center">
+          <div className="w-16 h-16 bg-primary text-on-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30 mb-6">
             <GraduationCap size={32} strokeWidth={2.5} />
           </div>
-          <p className="text-[11px] font-bold text-blue-600 tracking-widest uppercase mb-2 bg-blue-50 px-3 py-1 rounded-full">Academic GPA & CGPA Planner</p>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">GradePath</h1>
-          <p className="text-blue-600 font-semibold mb-6">Plan your grades. Track your progress. Reach your goal.</p>
-          <p className="text-gray-500 text-sm mb-8 leading-relaxed px-4">
+          <p className="text-[11px] font-bold text-primary tracking-widest uppercase mb-2 bg-blue-50 px-3 py-1 rounded-full">Academic GPA & CGPA Planner</p>
+          <h1 className="text-3xl font-bold text-on-surface mb-4 tracking-tight">GradePath</h1>
+          <p className="text-primary font-semibold mb-6">Plan your grades. Track your progress. Reach your goal.</p>
+          <p className="text-on-surface-variant text-sm mb-8 leading-relaxed px-4">
             A student-focused academic companion to track semester credits, simulate future CGPA targets, and stay on top of university requirements.
           </p>
           
           <button 
             onClick={() => login()}
-            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 font-semibold py-3 px-6 rounded-xl transition-all shadow-sm mb-6"
+            className="w-full flex items-center justify-center gap-3 bg-surface-container-lowest border border-outline-variant hover:border-outline hover:bg-surface-container-low text-on-surface font-semibold py-3 px-6 rounded-xl transition-all shadow-sm mb-6"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -188,11 +188,11 @@ function AppContent() {
             Continue with Google
           </button>
           
-          <div className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="flex items-center gap-2 text-xs text-on-surface-variant">
             <Sparkles size={14} className="text-green-500" />
             <span>Secured with university SSO compatibility.</span>
           </div>
-          <p className="text-[10px] text-gray-400 mt-2">We never view or store your university account passwords.</p>
+          <p className="text-[10px] text-outline mt-2">We never view or store your university account passwords.</p>
         </div>
       </div>
     );

@@ -271,7 +271,7 @@ const Profile = () => {
             <div className="bg-surface-container-low rounded-DEFAULT p-4 shadow-sm border border-outline-variant flex justify-end gap-3 sticky bottom-4 z-50">
               <button 
                 type="button" 
-                className="flex items-center gap-2 bg-white border border-outline text-on-surface hover:bg-surface-container-highest font-bold py-2.5 px-5 rounded-xl transition-colors"
+                className="flex items-center gap-2 bg-surface-container-lowest border border-outline text-on-surface hover:bg-surface-container-highest font-bold py-2.5 px-5 rounded-xl transition-colors"
                 onClick={() => { setIsEditing(false); setFormData(profile); setError(''); }}
               >
                 <X size={18} /> Cancel
@@ -344,7 +344,7 @@ const Profile = () => {
           </div>
           
           <button 
-            className="w-full sm:hidden flex items-center justify-center gap-2 bg-white border border-outline-variant text-on-surface text-sm font-bold py-3 px-4 rounded-xl transition-colors shadow-sm"
+            className="w-full sm:hidden flex items-center justify-center gap-2 bg-surface-container-lowest border border-outline-variant text-on-surface text-sm font-bold py-3 px-4 rounded-xl transition-colors shadow-sm"
             onClick={() => setIsEditing(true)}
           >
             <Edit3 size={18} /> Edit Profile
