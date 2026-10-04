@@ -43,28 +43,28 @@ const Settings = () => {
   };
 
   return (
-    <div className="p-4 lg:p-8 max-w-5xl mx-auto space-y-6 font-sans pb-20">
+    <div className="p-4 lg:p-8 max-w-5xl mx-auto space-y-6 font-sans pb-20 bg-surface min-h-screen">
       
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Application Settings</h1>
-        <p className="text-sm text-gray-500 font-medium mt-1">Manage your appearance, notifications, and account preferences.</p>
+        <h1 className="text-3xl font-bold text-on-surface tracking-tight">Application Settings</h1>
+        <p className="text-sm text-on-surface-variant font-medium mt-1">Manage your appearance, notifications, and account preferences.</p>
       </div>
 
       <div className="space-y-6">
         
         {/* Appearance */}
-        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Monitor size={20} className="text-blue-500" /> Appearance
+        <div className="bg-surface-container-low rounded-DEFAULT p-6 md:p-8 border border-outline-variant">
+          <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+            <Monitor size={20} className="text-primary" /> Appearance
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <button 
               onClick={() => handleThemeChange('light')}
-              className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${theme === 'light' ? 'border-blue-500 bg-blue-50/50 text-blue-700' : 'border-gray-100 hover:border-gray-200 text-gray-600 bg-white'}`}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 ${theme === 'light' ? 'border-primary bg-primary-container text-on-primary-container' : 'border-outline-variant hover:border-outline text-on-surface-variant bg-surface-container-lowest'}`}
             >
-              <div className={`p-3 rounded-xl ${theme === 'light' ? 'bg-blue-100 text-blue-600' : 'bg-gray-50 text-gray-400'}`}>
+              <div className={`p-3 rounded-xl ${theme === 'light' ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-outline'}`}>
                 <Sun size={24} />
               </div>
               <div className="font-bold">Light Mode</div>
@@ -72,9 +72,9 @@ const Settings = () => {
             
             <button 
               onClick={() => handleThemeChange('dark')}
-              className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${theme === 'dark' ? 'border-blue-500 bg-blue-50/50 text-blue-700' : 'border-gray-100 hover:border-gray-200 text-gray-600 bg-white'}`}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 ${theme === 'dark' ? 'border-primary bg-primary-container text-on-primary-container' : 'border-outline-variant hover:border-outline text-on-surface-variant bg-surface-container-lowest'}`}
             >
-              <div className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-blue-100 text-blue-600' : 'bg-gray-800 text-gray-400'}`}>
+              <div className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-outline'}`}>
                 <Moon size={24} />
               </div>
               <div className="font-bold">Dark Mode</div>
@@ -82,9 +82,9 @@ const Settings = () => {
             
             <button 
               onClick={() => handleThemeChange('system')}
-              className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${theme === 'system' ? 'border-blue-500 bg-blue-50/50 text-blue-700' : 'border-gray-100 hover:border-gray-200 text-gray-600 bg-white'}`}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 ${theme === 'system' ? 'border-primary bg-primary-container text-on-primary-container' : 'border-outline-variant hover:border-outline text-on-surface-variant bg-surface-container-lowest'}`}
             >
-              <div className={`p-3 rounded-xl ${theme === 'system' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
+              <div className={`p-3 rounded-xl ${theme === 'system' ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'}`}>
                 <Monitor size={24} />
               </div>
               <div className="font-bold">System Default</div>
@@ -93,59 +93,59 @@ const Settings = () => {
         </div>
 
         {/* Notifications */}
-        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Bell size={20} className="text-purple-500" /> Notifications
+        <div className="bg-surface-container-low rounded-DEFAULT p-6 md:p-8 border border-outline-variant">
+          <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+            <Bell size={20} className="text-secondary" /> Notifications
           </h2>
           
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl">
+            <div className="flex items-center justify-between p-4 border border-outline-variant rounded-xl">
               <div>
-                <h3 className="font-bold text-gray-900">Email Updates</h3>
-                <p className="text-xs text-gray-500 mt-1">Receive weekly summaries and important alerts.</p>
+                <h3 className="font-bold text-on-surface">Email Updates</h3>
+                <p className="text-xs text-on-surface-variant mt-1">Receive weekly summaries and important alerts.</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" checked={emailNotifs} onChange={() => setEmailNotifs(!emailNotifs)} />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
-            <div className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl">
+            <div className="flex items-center justify-between p-4 border border-outline-variant rounded-xl">
               <div>
-                <h3 className="font-bold text-gray-900">Push Notifications</h3>
-                <p className="text-xs text-gray-500 mt-1">Get notified instantly about significant CGPA changes.</p>
+                <h3 className="font-bold text-on-surface">Push Notifications</h3>
+                <p className="text-xs text-on-surface-variant mt-1">Get notified instantly about significant CGPA changes.</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" checked={pushNotifs} onChange={() => setPushNotifs(!pushNotifs)} />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
           </div>
         </div>
 
         {/* Data & Privacy */}
-        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Shield size={20} className="text-green-500" /> Data & Privacy
+        <div className="bg-surface-container-low rounded-DEFAULT p-6 md:p-8 border border-outline-variant">
+          <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+            <Shield size={20} className="text-tertiary" /> Data & Privacy
           </h2>
           
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-100 rounded-2xl gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-outline-variant rounded-xl gap-4">
               <div>
-                <h3 className="font-bold text-gray-900">Export Academic Data</h3>
-                <p className="text-xs text-gray-500 mt-1">Download your complete GradePath profile and semester history as CSV.</p>
+                <h3 className="font-bold text-on-surface">Export Academic Data</h3>
+                <p className="text-xs text-on-surface-variant mt-1">Download your complete GradePath profile and semester history as CSV.</p>
               </div>
-              <button className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold py-2 px-4 rounded-xl transition-colors shadow-sm whitespace-nowrap text-sm">
+              <button className="flex items-center justify-center gap-2 bg-surface-container-low border border-outline text-on-surface hover:bg-surface-container-high font-bold py-2 px-4 rounded-xl transition-colors shadow-sm whitespace-nowrap text-sm">
                 <Download size={16} /> Export CSV
               </button>
             </div>
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-red-100 bg-red-50/30 rounded-2xl gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-error-container bg-error-container/20 rounded-2xl gap-4">
               <div>
-                <h3 className="font-bold text-red-900">Delete Account</h3>
-                <p className="text-xs text-red-600 mt-1">Permanently remove your account and all associated data.</p>
+                <h3 className="font-bold text-error">Delete Account</h3>
+                <p className="text-xs text-on-error-container mt-1">Permanently remove your account and all associated data.</p>
               </div>
-              <button className="flex items-center justify-center gap-2 bg-red-100 text-red-700 hover:bg-red-200 font-bold py-2 px-4 rounded-xl transition-colors whitespace-nowrap text-sm border border-red-200">
+              <button className="flex items-center justify-center gap-2 bg-error text-on-error hover:bg-error/90 font-bold py-2 px-4 rounded-xl transition-colors whitespace-nowrap text-sm border-none">
                 <Trash2 size={16} /> Delete Account
               </button>
             </div>
@@ -153,14 +153,14 @@ const Settings = () => {
         </div>
 
         {/* Logout Section */}
-        <div className="flex justify-between items-center bg-gray-50 rounded-3xl p-6 border border-gray-200">
+        <div className="flex justify-between items-center bg-surface-container rounded-DEFAULT p-6 border border-outline-variant">
           <div>
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Logged In As</div>
-            <div className="font-bold text-gray-900">{user?.email}</div>
+            <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Logged In As</div>
+            <div className="font-bold text-on-surface">{user?.email}</div>
           </div>
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-700 font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm border border-gray-200"
+            className="flex items-center gap-2 bg-surface-container-lowest hover:bg-surface-container-high text-on-surface font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm border border-gray-200"
           >
             <LogOut size={18} /> Sign Out
           </button>

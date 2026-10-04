@@ -84,18 +84,18 @@ const Profile = () => {
   const hasAcademicProfile = !!profile?.university;
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-6 font-sans pb-20">
+    <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-6 font-sans pb-20 bg-surface min-h-screen">
       
       {/* Header */}
       <div className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Academic Profile</h1>
-          <p className="text-sm text-gray-500 font-medium mt-1">Manage your personal information and university details.</p>
+          <h1 className="text-3xl font-bold text-on-surface tracking-tight">Academic Profile</h1>
+          <p className="text-sm text-on-surface-variant font-medium mt-1">Manage your personal information and university details.</p>
         </div>
         {!isEditing && hasAcademicProfile && (
           <button 
             onClick={() => setIsEditing(true)}
-            className="hidden sm:flex items-center gap-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-bold py-2 px-4 rounded-xl transition-colors shadow-sm"
+            className="hidden sm:flex items-center gap-2 bg-surface-container border border-outline hover:bg-surface-container-high text-on-surface text-sm font-bold py-2 px-4 rounded-xl transition-colors shadow-sm"
           >
             <Edit3 size={16} /> Edit Profile
           </button>
@@ -103,14 +103,14 @@ const Profile = () => {
       </div>
       
       {successMsg && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center gap-3 mb-6 shadow-sm">
+        <div className="bg-secondary-container border border-secondary text-on-secondary-container px-4 py-3 rounded-xl flex items-center gap-3 mb-6 shadow-sm">
           <CheckCircle2 size={20} className="shrink-0" />
           <p className="text-sm font-bold">{successMsg}</p>
         </div>
       )}
       
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-3 mb-6 shadow-sm">
+        <div className="bg-error-container border border-error text-on-error-container px-4 py-3 rounded-xl flex items-center gap-3 mb-6 shadow-sm">
           <AlertTriangle size={20} className="shrink-0" />
           <p className="text-sm font-bold">{error}</p>
         </div>
@@ -122,9 +122,9 @@ const Profile = () => {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Personal Details */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <UserCircle size={20} className="text-blue-500" /> Personal Details
+          <div className="bg-surface-container-low rounded-DEFAULT p-6 md:p-8 border border-outline-variant">
+            <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+              <UserCircle size={20} className="text-primary" /> Personal Details
             </h2>
             
             <div className="flex flex-col sm:flex-row gap-6 items-start">
@@ -134,7 +134,7 @@ const Profile = () => {
                   alt="Profile" 
                   className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-md" 
                 />
-                <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1 rounded-lg border-2 border-white shadow-sm" title="Active">
+                <div className="absolute -bottom-2 -right-2 bg-secondary text-on-secondary p-1 rounded-lg border-2 border-white shadow-sm" title="Active">
                   <CheckCircle2 size={14} />
                 </div>
               </div>
@@ -143,28 +143,28 @@ const Profile = () => {
                 {isEditing ? (
                   <form id="personal-form" className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1.5">Full Name</label>
-                      <input type="text" name="name" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-bold" value={formData.name || ''} onChange={handleChange} required />
+                      <label className="block text-xs font-bold text-on-surface mb-1.5">Full Name</label>
+                      <input type="text" name="name" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.name || ''} onChange={handleChange} required />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1.5">Email Address</label>
-                      <input type="email" className="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-xl px-4 py-3 text-sm font-bold cursor-not-allowed" value={profile?.email || user?.email} disabled />
-                      <p className="text-[10px] text-gray-400 mt-1 font-medium">Email address is tied to your Google account and cannot be changed.</p>
+                      <label className="block text-xs font-bold text-on-surface mb-1.5">Email Address</label>
+                      <input type="email" className="w-full bg-surface-container border border-outline-variant text-on-surface-variant rounded-xl px-4 py-3 text-sm font-bold cursor-not-allowed" value={profile?.email || user?.email} disabled />
+                      <p className="text-[10px] text-outline mt-1 font-medium">Email address is tied to your Google account and cannot be changed.</p>
                     </div>
                   </form>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Full Name</div>
-                      <div className="text-base font-bold text-gray-900">{profile?.name || user?.name}</div>
+                      <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Full Name</div>
+                      <div className="text-base font-bold text-on-surface">{profile?.name || user?.name}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Email Address</div>
-                      <div className="text-base font-bold text-gray-900 truncate">{profile?.email || user?.email}</div>
+                      <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Email Address</div>
+                      <div className="text-base font-bold text-on-surface truncate">{profile?.email || user?.email}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Account Provider</div>
-                      <div className="text-base font-bold text-gray-900">Google OAuth</div>
+                      <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Account Provider</div>
+                      <div className="text-base font-bold text-on-surface">Google OAuth</div>
                     </div>
                   </div>
                 )}
@@ -173,15 +173,15 @@ const Profile = () => {
           </div>
 
           {/* Academic Information */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <GraduationCap size={20} className="text-indigo-500" /> Academic Information
+          <div className="bg-surface-container-low rounded-DEFAULT p-6 md:p-8 border border-outline-variant">
+            <h2 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+              <GraduationCap size={20} className="text-primary" /> Academic Information
             </h2>
             
             {!hasAcademicProfile && !isEditing ? (
-              <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
-                <p className="text-sm font-bold text-gray-500 mb-4">Your academic profile hasn't been set up yet.</p>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm" onClick={() => navigate('/onboarding')}>
+              <div className="text-center py-10 bg-surface-container-highest rounded-2xl border border-dashed border-outline">
+                <p className="text-sm font-bold text-on-surface-variant mb-4">Your academic profile hasn't been set up yet.</p>
+                <button className="bg-primary hover:bg-primary/90 text-on-primary font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm" onClick={() => navigate('/onboarding')}>
                   Set Up Academic Profile
                 </button>
               </div>
@@ -189,77 +189,77 @@ const Profile = () => {
               <form id="profile-form" className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">University / College</label>
-                    <input type="text" name="university" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.university || ''} onChange={handleChange} required />
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">University / College</label>
+                    <input type="text" name="university" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.university || ''} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">Degree Program</label>
-                    <input type="text" name="degree" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.degree || ''} onChange={handleChange} required />
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">Degree Program</label>
+                    <input type="text" name="degree" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.degree || ''} onChange={handleChange} required />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">Specialization / Major</label>
-                    <input type="text" name="specialization" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.specialization || ''} onChange={handleChange} required />
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">Specialization / Major</label>
+                    <input type="text" name="specialization" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.specialization || ''} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">Grading System</label>
-                    <select name="grading_system" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold appearance-none" value={formData.grading_system || '10'} onChange={handleChange}>
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">Grading System</label>
+                    <select name="grading_system" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold appearance-none" value={formData.grading_system || '10'} onChange={handleChange}>
                       <option value="10">10-Point Scale (CGPA)</option>
                       <option value="4">4-Point Scale (US GPA)</option>
                       <option value="5">5-Point Scale</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">Total Program Credits</label>
-                    <input type="number" name="total_program_credits" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.total_program_credits || ''} onChange={handleChange} required />
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">Total Program Credits</label>
+                    <input type="number" name="total_program_credits" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.total_program_credits || ''} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">Current Semester</label>
-                    <input type="number" name="current_semester" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.current_semester || ''} onChange={handleChange} required />
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">Current Semester</label>
+                    <input type="number" name="current_semester" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.current_semester || ''} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">Total Semesters</label>
-                    <input type="number" name="total_semesters" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.total_semesters || ''} onChange={handleChange} required />
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">Total Semesters</label>
+                    <input type="number" name="total_semesters" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.total_semesters || ''} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">Expected Graduation</label>
-                    <input type="number" name="expected_grad_year" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.expected_grad_year || ''} onChange={handleChange} required />
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">Expected Graduation</label>
+                    <input type="number" name="expected_grad_year" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.expected_grad_year || ''} onChange={handleChange} required />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">Target CGPA Goal</label>
-                    <input type="number" step="0.01" name="target_cgpa" className="w-full bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.target_cgpa || ''} onChange={handleChange} />
+                    <label className="block text-xs font-bold text-on-surface mb-1.5">Target CGPA Goal</label>
+                    <input type="number" step="0.01" name="target_cgpa" className="w-full bg-surface-container-high border-none text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.target_cgpa || ''} onChange={handleChange} />
                   </div>
                 </div>
               </form>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
                 <div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><Building size={12}/> University / College</div>
-                  <div className="text-base font-bold text-gray-900">{profile.university}</div>
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-outline uppercase tracking-wider mb-1"><Building size={12}/> University / College</div>
+                  <div className="text-base font-bold text-on-surface">{profile.university}</div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><BookOpen size={12}/> Program Details</div>
-                  <div className="text-base font-bold text-gray-900">{profile.degree} in {profile.specialization}</div>
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-outline uppercase tracking-wider mb-1"><BookOpen size={12}/> Program Details</div>
+                  <div className="text-base font-bold text-on-surface">{profile.degree} in {profile.specialization}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Grading System</div>
-                  <div className="text-sm font-bold text-gray-900 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 inline-block">{profile.grading_system}-Point Scale</div>
+                  <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Grading System</div>
+                  <div className="text-sm font-bold text-on-surface bg-surface-container-highest px-3 py-1.5 rounded-lg border border-outline-variant inline-block">{profile.grading_system}-Point Scale</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Degree Credits</div>
-                  <div className="text-sm font-bold text-gray-900 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 inline-block">{profile.total_program_credits} Credits</div>
+                  <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Total Degree Credits</div>
+                  <div className="text-sm font-bold text-on-surface bg-surface-container-highest px-3 py-1.5 rounded-lg border border-outline-variant inline-block">{profile.total_program_credits} Credits</div>
                 </div>
-                <div className="col-span-1 sm:col-span-2 pt-4 border-t border-gray-100 grid grid-cols-3 gap-4">
+                <div className="col-span-1 sm:col-span-2 pt-4 border-t border-outline-variant grid grid-cols-3 gap-4">
                   <div>
-                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Current Term</div>
-                    <div className="text-xl font-bold text-indigo-600">Sem {profile.current_semester || (profile.completed_semesters + 1)}<span className="text-xs text-gray-400 font-medium">/{profile.total_semesters}</span></div>
+                    <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Current Term</div>
+                    <div className="text-xl font-bold text-primary">Sem {profile.current_semester || (profile.completed_semesters + 1)}<span className="text-xs text-outline font-medium">/{profile.total_semesters}</span></div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Target CGPA</div>
-                    <div className="text-xl font-bold text-indigo-600">{profile.target_cgpa ? profile.target_cgpa.toFixed(2) : '--'}</div>
+                    <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Target CGPA</div>
+                    <div className="text-xl font-bold text-primary">{profile.target_cgpa ? profile.target_cgpa.toFixed(2) : '--'}</div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Class Of</div>
-                    <div className="text-xl font-bold text-gray-900">{profile.expected_grad_year}</div>
+                    <div className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Class Of</div>
+                    <div className="text-xl font-bold text-on-surface">{profile.expected_grad_year}</div>
                   </div>
                 </div>
               </div>
@@ -268,17 +268,17 @@ const Profile = () => {
           
           {/* Action Buttons */}
           {isEditing && (
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 flex justify-end gap-3 sticky bottom-4 z-50">
+            <div className="bg-surface-container-low rounded-DEFAULT p-4 shadow-sm border border-outline-variant flex justify-end gap-3 sticky bottom-4 z-50">
               <button 
                 type="button" 
-                className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-2.5 px-5 rounded-xl transition-colors"
+                className="flex items-center gap-2 bg-white border border-outline text-on-surface hover:bg-surface-container-highest font-bold py-2.5 px-5 rounded-xl transition-colors"
                 onClick={() => { setIsEditing(false); setFormData(profile); setError(''); }}
               >
                 <X size={18} /> Cancel
               </button>
               <button 
                 type="button" 
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-md shadow-blue-600/20"
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-on-primary font-bold py-2.5 px-6 rounded-xl transition-colors shadow-md shadow-primary/20"
                 onClick={handleSubmit} 
                 disabled={saving}
               >
@@ -297,54 +297,54 @@ const Profile = () => {
         <div className="lg:col-span-1 space-y-6">
           
           {/* Profile Completion */}
-          <div className="bg-white rounded-3xl p-6 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100">
-            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4">Profile Status</h3>
+          <div className="bg-surface-container-low rounded-DEFAULT p-6 border border-outline-variant">
+            <h3 className="text-[10px] font-bold text-outline uppercase tracking-wider mb-4">Profile Status</h3>
             
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500 border border-green-100 shrink-0">
                 <CheckCircle2 size={24} />
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-900 leading-tight">100% Complete</div>
-                <div className="text-xs text-gray-500 font-medium">All required details provided</div>
+                <div className="text-lg font-bold text-on-surface leading-tight">100% Complete</div>
+                <div className="text-xs text-on-surface-variant font-medium">All required details provided</div>
               </div>
             </div>
             
-            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mt-4 mb-2">
+            <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden mt-4 mb-2">
               <div className="h-full bg-green-500 rounded-full" style={{ width: '100%' }}></div>
             </div>
           </div>
 
           {/* Account Details */}
-          <div className="bg-white rounded-3xl p-6 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100">
-            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4">Security & Account</h3>
+          <div className="bg-surface-container-low rounded-DEFAULT p-6 border border-outline-variant">
+            <h3 className="text-[10px] font-bold text-outline uppercase tracking-wider mb-4">Security & Account</h3>
             
             <div className="space-y-4">
-              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+              <div className="flex justify-between items-center pb-3 border-b border-outline-variant">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-blue-500" />
-                  <span className="text-sm font-bold text-gray-700">Account Status</span>
+                  <ShieldCheck size={16} className="text-primary" />
+                  <span className="text-sm font-bold text-on-surface">Account Status</span>
                 </div>
                 <span className="text-xs font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">Active</span>
               </div>
               
-              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+              <div className="flex justify-between items-center pb-3 border-b border-outline-variant">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-blue-500" />
-                  <span className="text-sm font-bold text-gray-700">Email Verified</span>
+                  <CheckCircle2 size={16} className="text-primary" />
+                  <span className="text-sm font-bold text-on-surface">Email Verified</span>
                 </div>
-                <span className="text-xs font-bold text-gray-900">Yes (Google)</span>
+                <span className="text-xs font-bold text-on-surface">Yes (Google)</span>
               </div>
               
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-gray-700">Join Date</span>
-                <span className="text-xs font-bold text-gray-500">October 2024</span>
+                <span className="text-sm font-bold text-on-surface">Join Date</span>
+                <span className="text-xs font-bold text-on-surface-variant">October 2024</span>
               </div>
             </div>
           </div>
           
           <button 
-            className="w-full sm:hidden flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold py-3 px-4 rounded-xl transition-colors shadow-sm"
+            className="w-full sm:hidden flex items-center justify-center gap-2 bg-white border border-outline-variant text-on-surface text-sm font-bold py-3 px-4 rounded-xl transition-colors shadow-sm"
             onClick={() => setIsEditing(true)}
           >
             <Edit3 size={18} /> Edit Profile

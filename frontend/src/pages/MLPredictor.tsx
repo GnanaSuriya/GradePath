@@ -85,22 +85,22 @@ const MLPredictor = () => {
   ];
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-6 font-sans pb-20">
+    <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-6 font-sans pb-20 bg-surface min-h-screen">
       
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">ML Prediction Model</h1>
-          <span className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm border border-indigo-400">Beta</span>
+          <h1 className="text-3xl font-bold text-on-surface tracking-tight">ML Prediction Model</h1>
+          <span className="bg-gradient-to-r from-primary to-secondary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm border border-primary">Beta</span>
         </div>
-        <p className="text-sm text-gray-500 font-medium max-w-2xl">Experimental gradient boosting regressor to estimate your final marks based on early semester activity, attendance, and continuous assessment.</p>
+        <p className="text-sm text-on-surface-variant font-medium max-w-2xl">Experimental gradient boosting regressor to estimate your final marks based on early semester activity, attendance, and continuous assessment.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Column: Inputs */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 relative">
+          <div className="bg-surface-container-low rounded-DEFAULT p-6 md:p-8 border border-outline-variant relative">
             
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
@@ -108,8 +108,8 @@ const MLPredictor = () => {
                   <BrainCircuit size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">Algorithm Inputs</h2>
-                  <p className="text-xs text-gray-500">Provide current semester data to feed the inference engine.</p>
+                  <h2 className="text-lg font-bold text-on-surface">Algorithm Inputs</h2>
+                  <p className="text-xs text-on-surface-variant">Provide current semester data to feed the inference engine.</p>
                 </div>
               </div>
               <button 
@@ -130,57 +130,57 @@ const MLPredictor = () => {
               <div className="space-y-8">
                 {/* Section 1 */}
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
-                    <Activity size={16} className="text-gray-400" /> Continuous Assessment
+                  <h3 className="text-sm font-bold text-on-surface mb-4 flex items-center gap-2 border-b border-outline-variant pb-2">
+                    <Activity size={16} className="text-outline" /> Continuous Assessment
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Quiz 1 (/10)</label>
-                      <input type="number" step="0.1" name="quiz1_marks" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.quiz1_marks} onChange={handleChange} />
+                      <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Quiz 1 (/10)</label>
+                      <input type="number" step="0.1" name="quiz1_marks" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.quiz1_marks} onChange={handleChange} />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Quiz 2 (/10)</label>
-                      <input type="number" step="0.1" name="quiz2_marks" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.quiz2_marks} onChange={handleChange} />
+                      <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Quiz 2 (/10)</label>
+                      <input type="number" step="0.1" name="quiz2_marks" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.quiz2_marks} onChange={handleChange} />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Quiz 3 (/10)</label>
-                      <input type="number" step="0.1" name="quiz3_marks" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.quiz3_marks} onChange={handleChange} />
+                      <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Quiz 3 (/10)</label>
+                      <input type="number" step="0.1" name="quiz3_marks" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.quiz3_marks} onChange={handleChange} />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Midterm (/100)</label>
-                      <input type="number" step="0.1" name="midterm_marks" required className="w-full bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold shadow-sm" value={formData.midterm_marks} onChange={handleChange} />
+                      <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Midterm (/100)</label>
+                      <input type="number" step="0.1" name="midterm_marks" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold shadow-sm" value={formData.midterm_marks} onChange={handleChange} />
                     </div>
                   </div>
                 </div>
 
                 {/* Section 2 */}
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
-                    <FileCheck size={16} className="text-gray-400" /> Attendance & Participation
+                  <h3 className="text-sm font-bold text-on-surface mb-4 flex items-center gap-2 border-b border-outline-variant pb-2">
+                    <FileCheck size={16} className="text-outline" /> Attendance & Participation
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <div className="col-span-1">
-                      <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Assignments</label>
-                      <input type="number" name="total_assignments" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.total_assignments} onChange={handleChange} />
+                      <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Assignments</label>
+                      <input type="number" name="total_assignments" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.total_assignments} onChange={handleChange} />
                     </div>
                     <div className="col-span-2 flex gap-2">
                       <div className="flex-1">
-                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Total Lectures</label>
-                        <input type="number" name="total_lectures" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.total_lectures} onChange={handleChange} />
+                        <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Total Lectures</label>
+                        <input type="number" name="total_lectures" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.total_lectures} onChange={handleChange} />
                       </div>
                       <div className="flex-1">
-                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Attended</label>
-                        <input type="number" name="lectures_attended" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.lectures_attended} onChange={handleChange} />
+                        <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Attended</label>
+                        <input type="number" name="lectures_attended" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.lectures_attended} onChange={handleChange} />
                       </div>
                     </div>
                     <div className="col-span-2 flex gap-2">
                       <div className="flex-1">
-                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Total Labs</label>
-                        <input type="number" name="total_lab_sessions" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.total_lab_sessions} onChange={handleChange} />
+                        <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Total Labs</label>
+                        <input type="number" name="total_lab_sessions" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.total_lab_sessions} onChange={handleChange} />
                       </div>
                       <div className="flex-1">
-                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Attended</label>
-                        <input type="number" name="labs_attended" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.labs_attended} onChange={handleChange} />
+                        <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Attended</label>
+                        <input type="number" name="labs_attended" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.labs_attended} onChange={handleChange} />
                       </div>
                     </div>
                   </div>
@@ -188,28 +188,28 @@ const MLPredictor = () => {
 
                 {/* Section 3 */}
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
-                    <Info size={16} className="text-gray-400" /> Demographics & Historic
+                  <h3 className="text-sm font-bold text-on-surface mb-4 flex items-center gap-2 border-b border-outline-variant pb-2">
+                    <Info size={16} className="text-outline" /> Demographics & Historic
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Age</label>
-                      <input type="number" name="age" required className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.age} onChange={handleChange} />
+                      <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Age</label>
+                      <input type="number" name="age" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.age} onChange={handleChange} />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Gender</label>
-                      <select name="gender" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold appearance-none" value={formData.gender} onChange={handleChange}>
+                      <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Gender</label>
+                      <select name="gender" className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold appearance-none" value={formData.gender} onChange={handleChange}>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                       </select>
                     </div>
                     <div className="col-span-2 relative">
-                      <label className="block text-[11px] font-bold text-indigo-500 uppercase tracking-wider mb-1.5">Previous GPA (4.0 US Scale)</label>
+                      <label className="block text-[11px] font-bold text-primary uppercase tracking-wider mb-1.5">Previous GPA (4.0 US Scale)</label>
                       <div className="relative">
-                        <input type="number" step="0.01" name="previous_gpa" required className="w-full bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-xl pl-3 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold" value={formData.previous_gpa} onChange={handleChange} />
+                        <input type="number" step="0.01" name="previous_gpa" required className="w-full bg-surface-container-highest border border-outline-variant text-on-surface rounded-xl pl-3 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all font-bold" value={formData.previous_gpa} onChange={handleChange} />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 group cursor-help">
-                          <Info size={16} className="text-indigo-400" />
-                          <div className="absolute bottom-full right-0 mb-2 w-48 bg-gray-900 text-white text-[10px] p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <Info size={16} className="text-primary" />
+                          <div className="absolute bottom-full right-0 mb-2 w-48 bg-surface-container-highest text-on-surface text-[10px] p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                             Required by the dataset. Divide your 10-point CGPA by 2.5 to approximate.
                           </div>
                         </div>
@@ -220,11 +220,11 @@ const MLPredictor = () => {
 
               </div>
 
-              <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="mt-8 pt-6 border-t border-outline-variant">
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-3.5 px-8 rounded-xl transition-colors shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-on-primary text-sm font-bold py-3.5 px-8 rounded-xl transition-colors shadow-md shadow-primary/20 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <><div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> Running Inference...</>
@@ -240,7 +240,7 @@ const MLPredictor = () => {
 
         {/* Right Column: Results */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-gradient-to-br from-[#1E1B4B] to-[#312E81] rounded-3xl p-6 md:p-8 shadow-xl text-white relative overflow-hidden sticky top-24">
+          <div className="bg-gradient-to-br from-primary to-secondary rounded-DEFAULT p-6 md:p-8 shadow-sm text-on-primary relative overflow-hidden sticky top-24">
             
             {/* Background elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
