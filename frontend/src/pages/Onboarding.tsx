@@ -98,8 +98,8 @@ const Onboarding = () => {
       });
       window.location.href = '/';
     } catch (err: any) {
-      console.error("PROFILE SAVE ERROR:", err);
-      setErrorMsg('Unable to save your profile. Please try again.');
+      console.error("PROFILE SAVE ERROR:", err.response?.status, err.response?.data || err);
+      setErrorMsg(`Unable to save your profile. Please try again. (${err.response?.data?.details || err.message})`);
       setLoading(false);
     }
   };
