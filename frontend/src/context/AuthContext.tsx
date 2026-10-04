@@ -24,14 +24,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const localToken = localStorage.getItem('token');
+    const sessionToken = sessionStorage.getItem('token');
+    const token = localToken || sessionToken;
+
     if (token) {
       axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(res => {
+        if (res.data.needsOnboarding) {
+          if (localToken && !sessionToken) {
+            localStorage.removeItem('token');
+            setUser(null);
+            return;
+          }
+        } else {
+          if (sessionToken && !localToken) {
+            localStorage.setItem('token', sessionToken);
+            sessionStorage.removeItem('token');
+          }
+        }
         setUser(res.data);
       }).catch(() => {
         localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
       }).finally(() => {
         setLoading(false);
       });
@@ -46,7 +62,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const res = await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/auth/google`, {
           access_token: codeResponse.access_token
         });
-        localStorage.setItem('token', res.data.token);
+        
+        if (res.data.user.needsOnboarding) {
+          sessionStorage.setItem('token', res.data.token);
+          localStorage.removeItem('token');
+        } else {
+          localStorage.setItem('token', res.data.token);
+          sessionStorage.removeItem('token');
+        }
+        
         setUser(res.data.user);
       } catch (err) {
         console.error('Login failed', err);
@@ -58,6 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     setUser(null);
   };
 

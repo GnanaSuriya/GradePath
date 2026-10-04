@@ -23,7 +23,7 @@ const Onboarding = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
