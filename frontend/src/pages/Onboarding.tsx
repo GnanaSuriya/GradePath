@@ -4,15 +4,15 @@ import { CheckCircle2, ArrowRight } from 'lucide-react';
 
 const Onboarding = () => {
   const [formData, setFormData] = useState({
-    university: 'VIT Chennai',
-    degree: 'Bachelor of Technology',
-    specialization: 'Computer Science and Engineering',
-    total_semesters: '8',
-    expected_grad_year: '2026',
-    total_program_credits: '160',
-    completed_semesters: '4',
+    university: '',
+    degree: '',
+    specialization: '',
+    total_semesters: '',
+    expected_grad_year: '',
+    total_program_credits: '',
+    completed_semesters: '',
     grading_system: '10',
-    gender: 'Male',
+    gender: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -71,7 +71,6 @@ const Onboarding = () => {
           <div>
             <div className="flex justify-between mb-1.5">
               <label className="text-xs font-semibold text-on-surface">Institution / University</label>
-              <span className="text-[10px] font-medium text-green-600 bg-green-50 px-2 rounded-md">Detected: Auto-calibrated</span>
             </div>
             <input required type="text" name="university" className="w-full bg-surface-container-low border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" value={formData.university} onChange={handleChange} placeholder="e.g. VIT Chennai" />
           </div>
