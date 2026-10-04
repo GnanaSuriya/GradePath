@@ -64,13 +64,13 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
           
           if (existingSem) {
             await client.query(
-              `UPDATE "Semester" SET term = $1, gpa = $2, credits = $3 WHERE id = $4`,
-              [sem.term || `Semester ${sem.semester_number}`, sem.gpa, sem.credits, existingSem.id]
+              `UPDATE "Semester" SET term_name = $1, gpa = $2, credits = $3 WHERE id = $4`,
+              [sem.term_name || `Semester ${sem.semester_number}`, sem.gpa, sem.credits, existingSem.id]
             );
           } else {
             await client.query(
-              `INSERT INTO "Semester" (user_id, semester_number, term, gpa, credits) VALUES ($1, $2, $3, $4, $5)`,
-              [req.user?.id, sem.semester_number, sem.term || `Semester ${sem.semester_number}`, sem.gpa, sem.credits]
+              `INSERT INTO "Semester" (user_id, semester_number, term_name, gpa, credits) VALUES ($1, $2, $3, $4, $5)`,
+              [req.user?.id, sem.semester_number, sem.term_name || `Semester ${sem.semester_number}`, sem.gpa, sem.credits]
             );
           }
         }
@@ -81,8 +81,9 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
     res.json({ success: true });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error("Error saving profile/semesters:", err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error saving profile/semesters:", err instanceof Error ? err.message : err);
+    if (err instanceof Error) console.error(err.stack);
+    res.status(500).json({ error: 'Server error', details: err instanceof Error ? err.message : String(err) });
   } finally {
     client.release();
   }
