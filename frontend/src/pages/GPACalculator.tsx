@@ -1,37 +1,35 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-import { BookOpen, Plus, UploadCloud, ChevronDown, CheckCircle2, AlertCircle, X, Calculator, ArrowRight, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Plus, Trash2, Save, Sparkles, BookOpen, Calculator, UploadCloud, ChevronRight, CheckCircle2, AlertTriangle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const GPACalculator = () => {
-  // const { user } = useAuth();
-  const [subjects, setSubjects] = useState<any[]>([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
-  
-  const [pasteText, setPasteText] = useState('');
-  const [previewSubjects, setPreviewSubjects] = useState<any[]>([]);
-  const [isParsing, setIsParsing] = useState(false);
-  
   const [loading, setLoading] = useState(true);
-  const [showParser, setShowParser] = useState(false);
 
-  // For 10-point scale:
+  // Core data
+  const [subjects, setSubjects] = useState<any[]>([]);
+  
+  // Modes: 'manual' or 'vtop'
+  const [mode, setMode] = useState<'manual' | 'vtop'>('manual');
+  
+  // VTOP state
+  const [vtopText, setVtopText] = useState('');
+  const [isParsing, setIsParsing] = useState(false);
+  const [vtopPreview, setVtopPreview] = useState<any[]>([]);
+  const [vtopStep, setVtopStep] = useState<1 | 2 | 3>(1); // 1: Paste, 2: Review, 3: Confirm
+  
+  // Manual state
+  const [saving, setSaving] = useState(false);
+  const [semesterSelection, setSemesterSelection] = useState<number>(1);
+
+  // Grade Points based on 10 point scale by default, or 4 point
+  const gradeOptions = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
   const gradePoints: Record<string, number> = {
     'S': 10, 'A': 9, 'B': 8, 'C': 7, 'D': 6, 'E': 5, 'F': 0
-  };
-
-  const getGradeColor = (grade: string) => {
-    switch (grade) {
-      case 'S': return 'text-purple-700 bg-purple-50 border-purple-200';
-      case 'A': return 'text-blue-700 bg-blue-50 border-blue-200';
-      case 'B': return 'text-green-700 bg-green-50 border-green-200';
-      case 'C': return 'text-yellow-700 bg-yellow-50 border-yellow-200';
-      case 'D': return 'text-orange-700 bg-orange-50 border-orange-200';
-      case 'E': return 'text-red-600 bg-red-50 border-red-200';
-      case 'F': return 'text-red-700 bg-red-100 border-red-300';
-      default: return 'text-gray-700 bg-gray-50 border-gray-200';
-    }
   };
 
   useEffect(() => {
@@ -45,10 +43,16 @@ const GPACalculator = () => {
           axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, { headers })
         ]);
         
-        setSubjects(subRes.data);
         setProfile(profRes.data);
+        if (subRes.data && subRes.data.length > 0) {
+           setSubjects(subRes.data.map((s:any) => ({...s, saved: true})));
+        } else {
+           // Provide empty subject
+           setSubjects([{ id: 'temp-'+Date.now(), name: '', code: '', credits: 3, grade: 'A', saved: false }]);
+        }
+        setSemesterSelection(profRes.data.current_semester || (profRes.data.completed_semesters + 1));
       } catch (err) {
-        console.error('Failed to fetch');
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -56,75 +60,23 @@ const GPACalculator = () => {
     fetchData();
   }, []);
 
-  const handleParse = async () => {
-    if (!pasteText) return;
-    setIsParsing(true);
-    try {
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      const res = await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/timetable/parse`, { text: pasteText }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setPreviewSubjects(res.data.subjects);
-      if (res.data.subjects.length === 0) {
-        alert('Some course information could not be identified. Please review or enter it manually.');
-      }
-    } catch (err) {
-      alert('Error parsing timetable');
-    } finally {
-      setIsParsing(false);
-    }
+  const handleAddRow = () => {
+    setSubjects([...subjects, { id: 'temp-'+Date.now(), name: '', code: '', credits: 3, grade: 'A', saved: false }]);
   };
 
-  const handleSavePreview = async () => {
-    try {
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects/batch`, { subjects: previewSubjects }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setPreviewSubjects([]);
-      setPasteText('');
-      setShowParser(false);
-      // Reload subjects
-      const subRes = await axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects`, { headers: { Authorization: `Bearer ${token}` } });
-      setSubjects(subRes.data);
-    } catch (err) {
-      alert('Error saving subjects');
-    }
+  const handleUpdateSubject = (id: string | number, field: string, value: any) => {
+    setSubjects(subjects.map(s => s.id === id ? { ...s, [field]: value, saved: false } : s));
   };
 
-  const updateSubjectGrade = async (id: number, grade: string) => {
-    const pts = gradePoints[grade] || 0;
-    try {
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      await axios.put(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects/${id}`, { grade, grade_points: pts }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setSubjects(subjects.map(s => s.id === id ? { ...s, grade, grade_points: pts } : s));
-    } catch (err) {
-      alert('Error updating grade');
+  const handleRemoveSubject = async (id: string | number) => {
+    // If it's a temp row, just remove it
+    if (typeof id === 'string' && id.startsWith('temp-')) {
+       setSubjects(subjects.filter(s => s.id !== id));
+       return;
     }
-  };
-
-  const addSubject = async () => {
-    try {
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      const baseUrl = import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api';
-      await axios.post(
-        `${baseUrl}/current-semester/subjects/batch`,
-        { subjects: [{ code: 'NEW', name: 'New Subject', credits: 3, type: 'Theory' }] },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      // Reload subjects
-      const subRes = await axios.get(
-        `${baseUrl}/current-semester/subjects`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setSubjects(subRes.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const deleteSubject = async (id: number) => {
+    
+    // If it's a real db row, optionally delete it from DB immediately or wait for save.
+    // For simplicity, we'll mark it for removal or just delete it now.
     try {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       await axios.delete(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects/${id}`, {
@@ -136,596 +88,426 @@ const GPACalculator = () => {
     }
   };
 
+  const handleSaveManual = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      const baseUrl = import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api';
+      
+      // Filter out empty rows
+      const validSubjects = subjects.filter(s => s.name.trim() !== '' && s.credits > 0);
+      
+      // Update each existing or create new ones via batch
+      // Since backend batch endpoint replaces/adds, let's just use it
+      const payload = validSubjects.map(s => ({
+         name: s.name,
+         code: s.code || 'NA',
+         credits: Number(s.credits),
+         type: 'Theory',
+         grade: s.grade,
+         grade_points: gradePoints[s.grade]
+      }));
+
+      await axios.post(`${baseUrl}/current-semester/subjects/batch`, { subjects: payload }, { headers });
+      
+      alert('Saved successfully!');
+      navigate('/dashboard');
+    } catch (err) {
+      alert('Failed to save.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleParseVTOP = async () => {
+    if (!vtopText.trim()) return;
+    setIsParsing(true);
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const res = await axios.post(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/timetable/parse`, { text: vtopText }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.subjects && res.data.subjects.length > 0) {
+        setVtopPreview(res.data.subjects.map((s:any, idx:number) => ({...s, id: 'preview-'+idx, grade: 'A'})));
+        setVtopStep(2);
+      } else {
+        alert('No subjects detected. Please ensure you copied the timetable correctly.');
+      }
+    } catch (err) {
+      alert('Error parsing timetable');
+    } finally {
+      setIsParsing(false);
+    }
+  };
+
+  const handleUpdatePreview = (id: string, field: string, value: any) => {
+    setVtopPreview(vtopPreview.map(s => s.id === id ? { ...s, [field]: value } : s));
+  };
+
+  const handleSaveVTOP = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      const baseUrl = import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api';
+      
+      const payload = vtopPreview.map(s => ({
+         name: s.name,
+         code: s.code || 'NA',
+         credits: Number(s.credits),
+         type: s.type || 'Theory',
+         grade: s.grade,
+         grade_points: gradePoints[s.grade]
+      }));
+
+      await axios.post(`${baseUrl}/current-semester/subjects/batch`, { subjects: payload }, { headers });
+      setMode('manual');
+      // Fetch fresh subjects
+      const subRes = await axios.get(`${baseUrl}/current-semester/subjects`, { headers });
+      setSubjects(subRes.data.map((s:any) => ({...s, saved: true})));
+    } catch (err) {
+      alert('Failed to save imported subjects.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) return (
-    <div className="flex h-[80vh] items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <div className="flex h-[80vh] items-center justify-center bg-surface">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
     </div>
   );
 
-  const totalCredits = subjects.reduce((sum, s) => sum + s.credits, 0);
-  const totalWeighted = subjects.reduce((sum, s) => sum + (s.credits * (s.grade_points || 0)), 0);
-  const currentGPA = totalCredits === 0 ? 0 : totalWeighted / totalCredits;
-  const currentSem = profile?.completed_semesters + 1 || 1;
-  const gradingSystem = profile?.grading_system || 10;
+  // Calculations for Manual Mode
+  const validForCalc = subjects.filter(s => s.name.trim() !== '' && s.credits > 0);
+  const totalCredits = validForCalc.reduce((sum, s) => sum + Number(s.credits), 0);
+  const totalPoints = validForCalc.reduce((sum, s) => sum + (Number(s.credits) * (gradePoints[s.grade] || 0)), 0);
+  const currentGPA = totalCredits > 0 ? (totalPoints / totalCredits) : 0;
 
   return (
-    <main className="w-full min-h-screen pt-16 pb-20 lg:pb-10 bg-surface px-4 lg:px-8 max-w-7xl mx-auto"><div className="flex flex-col w-full">
-
-{/* Interactive State Sync Overlay Modal: Bulk Import */}
-
-<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-background/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" id="bulk-modal" style={{ display: showParser ? "flex" : "none", opacity: showParser ? 1 : 0 }}>
-
-<div className="bg-surface-container-lowest rounded-xl max-w-xl w-full p-6 shadow-xl flex flex-col gap-4">
-
-<div className="flex items-center justify-between">
-
-<div className="flex items-center gap-2.5">
-
-<div className="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
-
-<span className="material-symbols-outlined text-[20px]">content_paste</span>
-
-</div>
-
-<div>
-
-<h3 className="font-headline-sm text-headline-sm text-on-surface">Bulk Paste / VTOP Import</h3>
-
-<p className="font-body-sm text-body-sm text-on-surface-variant">Paste raw tab-separated or copied text from VTOP gradebook</p>
-
-</div>
-
-</div>
-
-<button className="p-1 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors" onClick={() => setShowParser(false)}>
-
-<span className="material-symbols-outlined text-[20px]">close</span>
-
-</button>
-
-</div>
-
-<div className="relative">
-
-<textarea className="w-full rounded-DEFAULT p-3.5 bg-surface-container-low text-on-surface font-body-sm text-body-sm outline-none focus:bg-surface-container-lowest shadow-sm placeholder:text-outline" value={pasteText} onChange={(e) => setPasteText(e.target.value)} placeholder="CSE3001 Software Engineering 3 A
-
-CSE3002 Operating Systems 4 S
-
-MAT3004 Applied Statistics 3 A" rows={5}></textarea>
-
-</div>
-
-<div className="flex items-center justify-between pt-2">
-
-<span className="font-label-sm text-label-sm text-on-surface-variant">Auto-detects course code, credits &amp; grade</span>
-
-<div className="flex gap-2">
-
-<button className="px-4 py-2 rounded-full bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors" onClick={() => setShowParser(false)}>Cancel</button>
-
-<button className="px-5 py-2 rounded-full bg-primary-container text-on-primary font-label-md text-label-md shadow-sm hover:opacity-95 transition-all" onClick={handleParse}>Import Courses</button>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-{/* Notification Toast */}
-
-<div className="fixed bottom-20 right-4 lg:bottom-8 lg:right-8 z-50 flex items-center gap-2.5 px-4 py-3 rounded-DEFAULT bg-inverse-surface text-inverse-on-surface shadow-xl transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none" id="toast">
-
-<span className="material-symbols-outlined text-[20px] text-tertiary-fixed">check_circle</span>
-
-<span className="font-label-md text-label-md" id="toast-text">Changes updated seamlessly</span>
-
-</div>
-
-{/* Top Hero Bar / Metadata Cluster */}
-
-<section className="mb-6 flex flex-col xl:flex-row xl:items-end justify-between gap-5">
-
-<div className="flex flex-col gap-1.5 max-w-2xl">
-
-<div className="inline-flex items-center gap-2 self-start px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed">
-
-<span className="material-symbols-outlined text-[16px]">verified</span>
-
-<span className="font-label-sm text-label-sm uppercase tracking-wide">Autonomous Grade Simulation</span>
-
-</div>
-
-<h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight font-bold">GPA Calculator</h1>
-
-<p className="font-body-md text-body-md text-on-surface-variant">
-
-        Calculate your semester GPA using your enrolled subjects, credits, and expected grades with university-calibrated grading algorithms.
-
-      </p>
-
-</div>
-
-{/* Top Action Controls Row */}
-
-<div className="flex flex-wrap items-center gap-2.5">
-
-<button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-surface-container-lowest text-secondary font-label-lg text-label-lg shadow-sm hover:bg-surface-container-low transition-all" onClick={() => setShowParser(true)}>
-
-<span className="material-symbols-outlined text-[18px]">cloud_upload</span>
-
-<span>VTOP Bulk Import</span>
-
-</button>
-
-<button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg shadow-sm hover:bg-error-container hover:text-on-error-container transition-all" id="reset-btn">
-
-<span className="material-symbols-outlined text-[18px]">restart_alt</span>
-
-<span>Reset</span>
-
-</button>
-
-<button className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary-container text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary transition-all" id="add-subject-top">
-
-<span className="material-symbols-outlined text-[20px]">add</span>
-
-<span>Add Subject</span>
-
-</button>
-
-</div>
-
-</section>
-
-{/* Filter & University Scheme Toolbar */}
-
-<section className="mb-6 p-4 rounded-lg bg-surface-container-lowest shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-
-<div className="flex flex-wrap items-center gap-3">
-
-<div className="flex items-center gap-2 bg-surface-container-low px-3.5 py-2 rounded-full">
-
-<span className="material-symbols-outlined text-[18px] text-primary">calendar_today</span>
-
-<label className="sr-only" htmlFor="sem-select">Select Semester</label>
-
-<select className="bg-transparent font-label-lg text-label-lg text-on-surface outline-none cursor-pointer pr-2" id="sem-select">
-
-<option>Semester 5 (Fall 2024-25)</option>
-
-<option>Semester 6 (Winter 2024-25)</option>
-
-<option>Semester 4 (Winter 2023-24)</option>
-
-</select>
-
-</div>
-
-<div className="flex items-center gap-2 bg-surface-container-low px-3.5 py-2 rounded-full">
-
-<span className="material-symbols-outlined text-[18px] text-tertiary">tune</span>
-
-<label className="sr-only" htmlFor="scale-select">Grading Scale</label>
-
-<select className="bg-transparent font-label-lg text-label-lg text-on-surface outline-none cursor-pointer pr-2" id="scale-select">
-
-<option value="vit-10">VIT 10-Point Scale (S=10, A=9, B=8, C=7, D=6, E=4, F=0)</option>
-
-<option value="us-4">Standard 4.0 Scale (A=4, B=3, C=2, D=1, F=0)</option>
-
-<option value="relative-10">Relative Grading Band (Calculated Curve)</option>
-
-</select>
-
-</div>
-
-</div>
-
-{/* Quick Status Pill Indicators */}
-
-<div className="flex items-center gap-3">
-
-<div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
-
-<span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
-
-<span>Dean's Honors Range</span>
-
-</div>
-
-<button className="inline-flex items-center gap-1 text-primary hover:text-on-primary-fixed-variant font-label-md text-label-md transition-colors" id="toggle-formula-modal">
-
-<span className="material-symbols-outlined text-[16px]">info</span>
-
-<span>Grading Rules</span>
-
-</button>
-
-</div>
-
-</section>
-
-{/* Main Grid: Calculator Core (Left) + Sticky Score Command Hub (Right) */}
-
-<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-{/* LEFT COLUMN: Subject Entry Rows (8 Cols) */}
-
-<div className="lg:col-span-8 flex flex-col gap-4">
-
-{/* Desktop Table Header (Hidden on Mobile) */}
-
-<div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-
-<span className="col-span-1">Seq</span>
-
-<span className="col-span-4">Course &amp; Title</span>
-
-<span className="col-span-2">Type / Cr</span>
-
-<span className="col-span-2">CAT/Midterm</span>
-
-<span className="col-span-2">Target Grade</span>
-
-<span className="col-span-1 text-right">Points</span>
-
-</div>
-
-{/* Course Rows Container */}
-
-<div className="flex flex-col gap-3" id="course-rows-container">
-          {subjects.length === 0 && !showParser ? (
-            <div className="text-center py-12 bg-surface-container-lowest rounded-DEFAULT border border-dashed border-outline">
-              <h3 className="text-lg font-bold text-on-surface mb-2">No subjects added yet</h3>
-              <p className="text-sm text-on-surface-variant max-w-sm mx-auto mb-6">
-                Add your current semester subjects manually or import them directly from your VTOP timetable.
-              </p>
-              <button onClick={() => setShowParser(true)} className="bg-primary hover:bg-primary-hover text-on-primary font-bold py-2.5 px-6 rounded-full transition-colors shadow-sm inline-flex items-center gap-2">
-                <span className="material-symbols-outlined text-[18px]">cloud_upload</span> Import from VTOP
-              </button>
+    <main className="w-full min-h-screen pt-8 pb-20 lg:pb-10 bg-surface px-4 lg:px-8 max-w-5xl mx-auto">
+      <div className="flex flex-col gap-8">
+        
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-on-surface tracking-tight">GPA Calculator</h1>
+            <p className="text-sm text-on-surface-variant font-medium mt-1">Plan and save your current semester grades.</p>
+          </div>
+          <div className="flex bg-surface-container-low rounded-lg border border-outline-variant p-1">
+            <button 
+              onClick={() => setMode('manual')}
+              className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${mode === 'manual' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface hover:bg-surface-container'}`}
+            >
+              Manual Entry
+            </button>
+            <button 
+              onClick={() => setMode('vtop')}
+              className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${mode === 'vtop' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface hover:bg-surface-container'}`}
+            >
+              VTOP Import
+            </button>
+          </div>
+        </div>
+
+        {mode === 'manual' && (
+          <div className="flex flex-col gap-8">
+            
+            {/* Step 1: Semester Selection */}
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-6 shadow-sm flex flex-col gap-4">
+              <h2 className="font-bold text-on-surface flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-xs">1</span>
+                Select Semester
+              </h2>
+              <div className="max-w-xs">
+                <select 
+                  className="w-full bg-surface-container-high border-none text-on-surface rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary font-bold"
+                  value={semesterSelection}
+                  onChange={(e) => setSemesterSelection(Number(e.target.value))}
+                >
+                  <option value={profile?.current_semester || 1}>Current Semester (Sem {profile?.current_semester || 1})</option>
+                  <option value={999}>Custom / Planning</option>
+                </select>
+              </div>
             </div>
-          ) : (
-            subjects.map((sub, idx) => (
-              <div key={sub.id || idx} className="course-row bg-surface-container-lowest rounded-DEFAULT p-4 md:py-3.5 shadow-sm hover:shadow-md transition-all flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-2 items-start md:items-center">
-                <div className="flex items-center justify-between w-full md:w-auto md:col-span-1">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px] text-outline cursor-grab">drag_indicator</span>
-                    <span className="font-label-md text-label-md text-on-surface-variant">{idx + 1}</span>
+
+            {/* Step 2: Subjects */}
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-6 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-on-surface flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-xs">2</span>
+                  Enter Subjects & Grades
+                </h2>
+                <button 
+                  onClick={handleAddRow}
+                  className="text-sm font-bold text-primary bg-primary-container px-3 py-1.5 rounded-lg hover:bg-primary-container/80 transition-colors flex items-center gap-1"
+                >
+                  <Plus size={16} /> Add Row
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-left min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-outline-variant">
+                      <th className="py-3 px-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-2/5">Subject Name</th>
+                      <th className="py-3 px-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-1/5">Course Code</th>
+                      <th className="py-3 px-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-1/6">Credits</th>
+                      <th className="py-3 px-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-1/6">Expected Grade</th>
+                      <th className="py-3 px-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {subjects.map((sub, i) => (
+                      <tr key={sub.id} className="border-b border-outline-variant last:border-none hover:bg-surface-container-low transition-colors group">
+                        <td className="py-2 px-2">
+                          <input 
+                            type="text" 
+                            placeholder="e.g. Software Engineering"
+                            value={sub.name}
+                            onChange={(e) => handleUpdateSubject(sub.id, 'name', e.target.value)}
+                            className="w-full bg-surface-container-highest border-none rounded-lg px-3 py-2 text-sm text-on-surface focus:ring-2 focus:ring-primary font-medium placeholder:text-outline"
+                          />
+                        </td>
+                        <td className="py-2 px-2">
+                          <input 
+                            type="text" 
+                            placeholder="e.g. CSE3001"
+                            value={sub.code}
+                            onChange={(e) => handleUpdateSubject(sub.id, 'code', e.target.value)}
+                            className="w-full bg-surface-container-highest border-none rounded-lg px-3 py-2 text-sm text-on-surface focus:ring-2 focus:ring-primary placeholder:text-outline"
+                          />
+                        </td>
+                        <td className="py-2 px-2">
+                          <input 
+                            type="number" 
+                            min="1" max="10"
+                            value={sub.credits}
+                            onChange={(e) => handleUpdateSubject(sub.id, 'credits', Number(e.target.value))}
+                            className="w-full bg-surface-container-highest border-none rounded-lg px-3 py-2 text-sm text-on-surface focus:ring-2 focus:ring-primary"
+                          />
+                        </td>
+                        <td className="py-2 px-2">
+                          <select 
+                            value={sub.grade}
+                            onChange={(e) => handleUpdateSubject(sub.id, 'grade', e.target.value)}
+                            className="w-full bg-surface-container-highest border-none rounded-lg px-3 py-2 text-sm text-on-surface font-bold focus:ring-2 focus:ring-primary"
+                          >
+                            {gradeOptions.map(g => <option key={g} value={g}>{g}</option>)}
+                          </select>
+                        </td>
+                        <td className="py-2 px-2 text-right">
+                          <button 
+                            onClick={() => handleRemoveSubject(sub.id)}
+                            className="p-2 rounded-lg text-outline hover:bg-error-container hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Step 3 & 4: Calculate & Save */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="bg-primary rounded-DEFAULT p-6 shadow-sm text-on-primary flex flex-col justify-between">
+                <div>
+                  <h2 className="font-bold mb-4 flex items-center gap-2 opacity-90">
+                    <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs">3</span>
+                    Calculation Result
+                  </h2>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[48px] font-extrabold tracking-tighter leading-none">{currentGPA.toFixed(2)}</span>
+                    <span className="text-sm font-medium opacity-80">SGPA</span>
                   </div>
-                  <div className="flex md:hidden items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">{sub.type || 'Course'}</span>
-                    <span className="font-headline-sm text-headline-sm font-bold text-primary">{(sub.credits * (sub.grade_points || 0)).toFixed(1)}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/20">
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Total Credits</div>
+                    <div className="text-xl font-bold">{totalCredits}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Grade Points</div>
+                    <div className="text-xl font-bold">{totalPoints}</div>
                   </div>
                 </div>
-                <div className="flex flex-col w-full md:col-span-4">
-                  <span className="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">{sub.code}</span>
-                  <span className="font-body-sm text-body-sm text-on-surface-variant truncate">{sub.name}</span>
+              </div>
+
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h2 className="font-bold text-on-surface mb-2 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-xs">4</span>
+                    Save to Profile
+                  </h2>
+                  <p className="text-sm text-on-surface-variant mb-6">Saving this will update your current semester's academic standing and sync with your dashboard.</p>
                 </div>
-                <div className="w-full md:col-span-2 flex items-center justify-between md:justify-start">
-                  <span className="md:hidden font-label-sm text-label-sm text-on-surface-variant">Format &amp; Credits</span>
-                  <div className="bg-surface-container-low font-label-md text-label-md text-on-surface py-1.5 px-2.5 rounded-full outline-none">
-                    {sub.credits} Credits
+                
+                <button 
+                  onClick={handleSaveManual}
+                  disabled={saving || validForCalc.length === 0}
+                  className="w-full py-3.5 rounded-xl bg-primary text-on-primary font-bold shadow-md hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {saving ? <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div> : <Save size={20} />}
+                  Save Semester
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {mode === 'vtop' && (
+          <div className="flex flex-col gap-6">
+            
+            {/* VTOP Step Progress */}
+            <div className="flex items-center justify-between mb-2">
+              {[
+                { step: 1, label: 'Paste Data' },
+                { step: 2, label: 'Review & Edit' },
+                { step: 3, label: 'Confirm' }
+              ].map((s, i, arr) => (
+                <React.Fragment key={s.step}>
+                  <div className="flex flex-col items-center gap-2 relative z-10 w-24">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${vtopStep >= s.step ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                      {s.step}
+                    </div>
+                    <span className={`text-xs font-bold text-center ${vtopStep >= s.step ? 'text-on-surface' : 'text-on-surface-variant'}`}>{s.label}</span>
                   </div>
-                </div>
-                <div className="w-full md:col-span-2 flex items-center justify-between md:justify-start gap-1.5">
-                  <span className="md:hidden font-label-sm text-label-sm text-on-surface-variant">Midterm / Internal</span>
-                  <div className="flex items-center bg-surface-container-low px-2 py-1 rounded-DEFAULT">
-                    <input className="w-14 bg-transparent font-label-md text-label-md text-on-surface outline-none text-center" type="text" placeholder="--/50" />
+                  {i < arr.length - 1 && (
+                    <div className="flex-1 h-1 bg-surface-container-high -mt-6">
+                      <div className="h-full bg-primary transition-all duration-300" style={{ width: vtopStep > s.step ? '100%' : '0%' }}></div>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+
+            {vtopStep === 1 && (
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-6 shadow-sm flex flex-col gap-4">
+                <h3 className="font-bold text-on-surface">Paste VTOP Timetable / Grades</h3>
+                <p className="text-sm text-on-surface-variant">Copy the text from your VTOP portal and paste it here. We will automatically extract the course names, codes, and credits.</p>
+                <textarea 
+                  className="w-full rounded-lg p-4 bg-surface-container-high text-on-surface font-mono text-xs outline-none focus:ring-2 focus:ring-primary shadow-inner border-none min-h-[200px]"
+                  placeholder="Paste here... e.g. CSE3001 Software Engineering 3 Theory"
+                  value={vtopText}
+                  onChange={e => setVtopText(e.target.value)}
+                />
+                <button 
+                  onClick={handleParseVTOP}
+                  disabled={isParsing || !vtopText.trim()}
+                  className="w-full py-3.5 rounded-xl bg-primary text-on-primary font-bold shadow-sm hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+                >
+                  {isParsing ? <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div> : 'Extract Subjects'}
+                </button>
+              </div>
+            )}
+
+            {vtopStep === 2 && (
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-6 shadow-sm flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-on-surface">Review Extracted Subjects</h3>
+                    <p className="text-sm text-on-surface-variant mt-1">Make any corrections to the extracted data below.</p>
                   </div>
-                </div>
-                <div className="w-full md:col-span-2 flex items-center justify-between md:justify-start">
-                  <span className="md:hidden font-label-sm text-label-sm text-on-surface-variant">Target Grade</span>
-                  <select 
-                    className="grade-select w-full md:w-auto bg-surface-container-high font-headline-sm text-headline-sm text-on-surface font-bold py-1.5 px-3 rounded-full outline-none transition-colors"
-                    value={sub.grade || ''} 
-                    onChange={(e) => updateSubjectGrade(sub.id, e.target.value)}
-                  >
-                    <option value="">Select</option>
-                    {Object.keys(gradePoints).map(g => <option key={g} value={g}>{g} ({gradePoints[g]})</option>)}
-                  </select>
-                </div>
-                <div className="hidden md:flex md:col-span-1 items-center justify-end gap-2">
-                  <span className="font-headline-sm text-headline-sm font-bold text-primary">{(sub.credits * (sub.grade_points || 0)).toFixed(1)}</span>
-                  <button onClick={() => deleteSubject(sub.id)} className="text-outline hover:text-error transition-colors p-1" title="Delete Course">
-                    <span className="material-symbols-outlined text-[18px]">close</span>
+                  <button onClick={() => setVtopStep(1)} className="text-sm font-bold text-primary hover:underline flex items-center gap-1">
+                    <ArrowLeft size={16} /> Back to paste
                   </button>
                 </div>
-                <div className="w-full flex md:hidden items-center justify-between pt-2">
-                  <span className="font-label-sm text-label-sm text-on-surface-variant">Impact: {sub.credits} Cr × {sub.grade_points || 0} = {(sub.credits * (sub.grade_points || 0)).toFixed(1)} Pts</span>
-                  <button onClick={() => deleteSubject(sub.id)} className="text-error font-label-sm text-label-sm flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[16px]">delete</span>
-                    <span>Remove</span>
+                
+                <div className="overflow-x-auto border border-outline-variant rounded-lg mt-2">
+                  <table className="w-full text-left">
+                    <thead className="bg-surface-container-low">
+                      <tr className="border-b border-outline-variant">
+                        <th className="py-3 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Subject Name</th>
+                        <th className="py-3 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Code</th>
+                        <th className="py-3 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-24">Credits</th>
+                        <th className="py-3 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-32">Expected Grade</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {vtopPreview.map(sub => (
+                        <tr key={sub.id} className="border-b border-outline-variant last:border-none hover:bg-surface-container-lowest">
+                          <td className="py-2 px-2">
+                            <input 
+                              type="text" value={sub.name} onChange={(e) => handleUpdatePreview(sub.id, 'name', e.target.value)}
+                              className="w-full bg-surface-container-highest border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary"
+                            />
+                          </td>
+                          <td className="py-2 px-2">
+                            <input 
+                              type="text" value={sub.code} onChange={(e) => handleUpdatePreview(sub.id, 'code', e.target.value)}
+                              className="w-full bg-surface-container-highest border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary"
+                            />
+                          </td>
+                          <td className="py-2 px-2">
+                            <input 
+                              type="number" value={sub.credits} onChange={(e) => handleUpdatePreview(sub.id, 'credits', Number(e.target.value))}
+                              className="w-full bg-surface-container-highest border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary"
+                            />
+                          </td>
+                          <td className="py-2 px-2">
+                            <select 
+                              value={sub.grade} onChange={(e) => handleUpdatePreview(sub.id, 'grade', e.target.value)}
+                              className="w-full bg-surface-container-highest border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary font-bold"
+                            >
+                              {gradeOptions.map(g => <option key={g} value={g}>{g}</option>)}
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex justify-end mt-4">
+                  <button 
+                    onClick={() => setVtopStep(3)}
+                    className="py-3 px-8 rounded-xl bg-primary text-on-primary font-bold shadow-sm hover:bg-primary/90 transition-all flex items-center gap-2"
+                  >
+                    Proceed to Confirm <ArrowRight size={18} />
                   </button>
                 </div>
               </div>
-            ))
-          )}
+            )}
+
+            {vtopStep === 3 && (
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-6 shadow-sm flex flex-col gap-6 items-center text-center max-w-lg mx-auto mt-4">
+                <div className="w-16 h-16 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center mb-2">
+                  <CheckCircle2 size={32} />
+                </div>
+                <div>
+                  <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">Ready to Save</h3>
+                  <p className="text-sm text-on-surface-variant">You are about to import <b>{vtopPreview.length}</b> subjects into your current semester. This will replace any unsaved manual entries.</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <button 
+                    onClick={() => setVtopStep(2)}
+                    className="py-3.5 rounded-xl bg-surface-container text-on-surface font-bold hover:bg-surface-container-high transition-colors"
+                  >
+                    Edit Again
+                  </button>
+                  <button 
+                    onClick={handleSaveVTOP}
+                    disabled={saving}
+                    className="py-3.5 rounded-xl bg-primary text-on-primary font-bold shadow-md hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+                  >
+                    {saving ? 'Saving...' : 'Confirm & Save'}
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
-          <button className="w-full py-4 rounded-DEFAULT bg-surface-container-low hover:bg-surface-container text-primary font-headline-sm text-headline-sm flex items-center justify-center gap-2 transition-all" id="add-subject-bottom" onClick={() => addSubject()}>
+        )}
 
-<span className="material-symbols-outlined text-[22px]">add_circle</span>
-
-<span>+ Add Another Subject</span>
-
-</button>
-
-{/* Grade Scale Reference Card & Interactive Helper */}
-
-<div className="mt-4 p-5 rounded-lg bg-surface-container-lowest shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-
-<div className="flex items-center gap-3">
-
-<div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed shrink-0">
-
-<span className="material-symbols-outlined text-[20px]">functions</span>
-
-</div>
-
-<div>
-
-<span className="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Calculation Standard</span>
-
-<p className="font-headline-sm text-headline-sm text-on-surface">GPA = Σ(Credits × Grade Points) / Σ(Credits)</p>
-
-</div>
-
-</div>
-
-{/* Grade Badges Pill Array */}
-
-<div className="flex flex-wrap items-center gap-1.5">
-
-<span className="px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">S: 10</span>
-
-<span className="px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold">A: 9</span>
-
-<span className="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">B: 8</span>
-
-<span className="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">C: 7</span>
-
-<span className="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">D: 6</span>
-
-<span className="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">E: 4</span>
-
-<span className="px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">F: 0</span>
-
-</div>
-
-</div>
-
-</div>
-
-{/* RIGHT COLUMN: Sticky Live Result Command Card (4 Cols) */}
-
-<div className="lg:col-span-4 sticky top-20 flex flex-col gap-4">
-
-{/* Primary Live Score Card */}
-
-<div className="bg-surface-container-lowest rounded-lg p-6 shadow-md flex flex-col gap-5 relative overflow-hidden">
-
-{/* Ambient decorative gradient blurs */}
-
-<div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary-fixed/40 blur-2xl pointer-events-none"></div>
-
-<div className="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-tertiary-fixed/30 blur-2xl pointer-events-none"></div>
-
-<div className="flex items-center justify-between relative z-10">
-
-<div className="flex items-center gap-2">
-
-<span className="material-symbols-outlined text-[20px] text-primary">insights</span>
-
-<span className="font-label-lg text-label-lg text-on-surface uppercase tracking-wider font-bold">Semester Preview</span>
-
-</div>
-
-<span className="px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">Class Distinction</span>
-
-</div>
-
-{/* Radial Score Display & Big Number */}
-
-<div className="flex items-center justify-between gap-4 py-2 relative z-10">
-
-<div className="flex flex-col">
-
-<span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Calculated GPA</span>
-
-<div className="flex items-baseline gap-1">
-
-<span className="font-display-lg text-display-lg font-bold text-on-surface tracking-tight" id="gpa-display">9.14</span>
-
-<span className="font-headline-sm text-headline-sm text-on-surface-variant font-medium">/ 10</span>
-
-</div>
-
-<span className="font-body-sm text-body-sm text-tertiary font-semibold flex items-center gap-1">
-
-<span className="material-symbols-outlined text-[16px]">north_east</span>
-
-<span>Exceeds Target (9.0)</span>
-
-</span>
-
-</div>
-
-{/* Inline SVG Progress Gauge */}
-
-<div className="relative w-24 h-24 shrink-0 flex items-center justify-center">
-
-<svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-
-<circle className="text-surface-container-high" cx="50" cy="50" fill="none" r="40" stroke="currentColor" strokeWidth="8"></circle>
-
-<circle className="text-primary-container transition-all duration-700 ease-out" cx="50" cy="50" fill="none" id="gpa-ring" r="40" stroke="currentColor" strokeDasharray="251.2" strokeDashoffset="21.6" strokeLinecap="round" strokeWidth="8"></circle>
-
-</svg>
-
-<div className="absolute inset-0 flex flex-col items-center justify-center">
-
-<span className="font-label-sm text-label-sm text-on-surface-variant uppercase">Index</span>
-
-<span className="font-headline-sm text-headline-sm font-bold text-on-surface" id="gpa-percent-display">91.4%</span>
-
-</div>
-
-</div>
-
-</div>
-
-{/* Metric Counter Grid */}
-
-<div className="grid grid-cols-2 gap-3 pt-2 relative z-10">
-
-<div className="p-3 rounded-DEFAULT bg-surface-container-low flex flex-col">
-
-<span className="font-label-sm text-label-sm text-on-surface-variant">Total Credits</span>
-
-<span className="font-headline-lg text-headline-lg font-bold text-on-surface" id="total-credits-display">21 Cr</span>
-
-<span className="font-label-sm text-label-sm text-primary">6 Registered Units</span>
-
-</div>
-
-<div className="p-3 rounded-DEFAULT bg-surface-container-low flex flex-col">
-
-<span className="font-label-sm text-label-sm text-on-surface-variant">Quality Points</span>
-
-<div className="flex items-baseline gap-1">
-
-<span className="font-headline-lg text-headline-lg font-bold text-on-surface" id="quality-points-display">192.0</span>
-
-<span className="font-label-sm text-label-sm text-on-surface-variant">/ 210</span>
-
-</div>
-
-<span className="font-label-sm text-label-sm text-on-surface-variant">Max potential 210</span>
-
-</div>
-
-</div>
-
-{/* Cumulative CGPA Shift Box */}
-
-<div className="p-4 rounded-DEFAULT bg-surface-container flex flex-col gap-2 relative z-10">
-
-<div className="flex items-center justify-between">
-
-<span className="font-label-md text-label-md text-on-surface font-semibold">Impact on Cumulative CGPA</span>
-
-<span className="material-symbols-outlined text-[18px] text-tertiary-container">rocket_launch</span>
-
-</div>
-
-<p className="font-body-sm text-body-sm text-on-surface-variant">
-
-            Raises cumulative from <span className="font-bold text-on-surface">8.42</span> to <span className="font-bold text-primary" id="projected-cgpa">8.57</span> <span className="text-tertiary font-bold">(+0.15)</span> across 89 total credits.
-
-          </p>
-
-<div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
-
-<div className="bg-primary h-full rounded-full transition-all duration-500" id="cgpa-bar" style={{"width":"85.7%"}}></div>
-
-</div>
-
-</div>
-
-{/* Primary Action CTA Cluster */}
-
-<div className="flex flex-col gap-2.5 pt-1 relative z-10">
-
-<button className="w-full py-3 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2" id="save-history-btn">
-
-<span className="material-symbols-outlined text-[20px]">save</span>
-
-<span>Save to Semester History</span>
-
-</button>
-
-<button className="w-full py-2.5 rounded-full bg-surface-container text-on-surface font-label-lg text-label-lg hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2" id="export-btn">
-
-<span className="material-symbols-outlined text-[18px]">download</span>
-
-<span>Export Grade Sheet (PDF/CSV)</span>
-
-</button>
-
-</div>
-
-</div>
-
-{/* What-If Strategic Guidance Helper Box */}
-
-<div className="p-5 rounded-lg bg-surface-container-lowest shadow-sm flex flex-col gap-3">
-
-<div className="flex items-center gap-2 text-secondary">
-
-<span className="material-symbols-outlined text-[20px]">auto_awesome</span>
-
-<span className="font-headline-sm text-headline-sm font-bold text-on-surface">Target Scenario Helper</span>
-
-</div>
-
-<p className="font-body-sm text-body-sm text-on-surface-variant">
-
-          Want to break into the <span className="font-bold text-on-surface">9.50+</span> tier this semester?
-
-        </p>
-
-<div className="p-3 rounded-DEFAULT bg-secondary-fixed/50 flex flex-col gap-2">
-
-<p className="font-label-md text-label-md text-on-secondary-fixed">
-
-            Swap your <strong>B (8.0)</strong> in <strong>ECE2001 (Microprocessors)</strong> to an <strong>S (10.0)</strong> to jump your GPA to <span className="font-bold underline">9.52</span>!
-
-          </p>
-
-<button className="self-start px-3 py-1 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm hover:opacity-90 transition-opacity" id="apply-scenario-btn">
-
-            Simulate S Grade in ECE2001
-
-          </button>
-
-</div>
-
-<div className="flex items-center justify-between text-on-surface-variant pt-1 font-label-sm text-label-sm">
-
-<span>Based on current internal test margins</span>
-
-<Link className="text-primary hover:underline" to="#">View Advice</Link>
-
-</div>
-
-</div>
-
-{/* Campus Benchmark Card */}
-
-<div className="p-4 rounded-lg bg-surface-container-low flex items-center gap-3">
-
-<span className="material-symbols-outlined text-[24px] text-on-surface-variant shrink-0">military_tech</span>
-
-<div className="flex flex-col">
-
-<span className="font-headline-sm text-headline-sm font-semibold text-on-surface">VIT Chennai 90th Percentile</span>
-
-<span className="font-body-sm text-body-sm text-on-surface-variant">Students in CSE 5th Semester average 8.41 GPA</span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-{/* Interactive Logic & Micro-interactions */}
-
-
-
-</div></main>
+      </div>
+    </main>
   );
 };
 
