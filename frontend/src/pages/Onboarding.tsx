@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 
 const Onboarding = () => {
   const [formData, setFormData] = useState({
-    university: '',
-    degree: '',
-    specialization: '',
-    total_semesters: '',
-    expected_grad_year: '',
-    total_program_credits: '',
-    completed_semesters: '',
+    university: 'VIT Chennai',
+    degree: 'Bachelor of Technology',
+    specialization: 'Computer Science and Engineering',
+    total_semesters: '8',
+    expected_grad_year: '2026',
+    total_program_credits: '160',
+    completed_semesters: '4',
     grading_system: '10',
     gender: 'Male',
   });
@@ -35,68 +36,117 @@ const Onboarding = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0', minHeight: '100vh', backgroundColor: 'var(--bg-page)' }}>
-      <div className="card" style={{ width: '600px', padding: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 700 }}>Academic Profile Setup</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Complete your profile to get started.</p>
+    <div className="min-h-screen bg-[#F8FAFC] py-12 flex flex-col items-center justify-center px-4 font-sans">
+      <div className="w-full max-w-xl bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+        
+        {/* Header */}
+        <div className="p-8 pb-6 border-b border-gray-50">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-xs font-bold text-blue-600 tracking-wider uppercase">Profile Setup</span>
+            <span className="text-xs font-medium text-gray-500">100% Completed</span>
+          </div>
+          <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-6">
+            <div className="bg-blue-600 h-full w-full rounded-full"></div>
+          </div>
+          
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-medium shrink-0">
+              <CheckCircle2 size={14} /> 1. University
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-full text-xs font-medium shrink-0">
+              <span className="w-4 h-4 bg-white/20 rounded-full flex items-center justify-center text-[10px]">2</span> Degree & Program
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-500 rounded-full text-xs font-medium shrink-0">
+              3. Structure
+            </div>
+          </div>
+
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Let's set up your academic profile</h1>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Tell us a little about your course so GradePath can calculate your academic progress accurately.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} className="p-8 pt-6 space-y-5 bg-white">
           <div>
-            <label>University / College</label>
-            <input required type="text" name="university" className="form-control" value={formData.university} onChange={handleChange} />
+            <div className="flex justify-between mb-1.5">
+              <label className="text-xs font-semibold text-gray-700">Institution / University</label>
+              <span className="text-[10px] font-medium text-green-600 bg-green-50 px-2 rounded-md">Detected: Auto-calibrated</span>
+            </div>
+            <input required type="text" name="university" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" value={formData.university} onChange={handleChange} placeholder="e.g. VIT Chennai" />
           </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Degree</label>
+              <input required type="text" name="degree" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" value={formData.degree} onChange={handleChange} placeholder="e.g. Bachelor of Technology" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Specialization / Major</label>
+              <input required type="text" name="specialization" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" value={formData.specialization} onChange={handleChange} placeholder="e.g. Computer Science" />
+            </div>
+          </div>
+
           <div>
-            <label>Degree / Program</label>
-            <input required type="text" name="degree" className="form-control" value={formData.degree} onChange={handleChange} />
+            <div className="flex justify-between mb-1.5">
+              <label className="text-xs font-semibold text-gray-700">Grading System</label>
+              <span className="text-[10px] font-medium text-gray-500">Standard UGC Scale</span>
+            </div>
+            <select name="grading_system" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none" value={formData.grading_system} onChange={handleChange}>
+              <option value="10">10-Point Scale (Standard UGC / Autonomous)</option>
+              <option value="4">4-Point Scale (US Standard)</option>
+              <option value="5">5-Point Scale</option>
+            </select>
           </div>
-          <div>
-            <label>Specialization</label>
-            <input required type="text" name="specialization" className="form-control" value={formData.specialization} onChange={handleChange} />
+
+          <div className="grid grid-cols-3 gap-3 pt-2">
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 text-center flex flex-col justify-center">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Duration</span>
+              <div className="flex items-center justify-center gap-1">
+                <input required type="number" name="total_semesters" className="w-8 bg-transparent text-lg font-bold text-gray-900 text-center p-0 border-none focus:ring-0" value={formData.total_semesters} onChange={handleChange} />
+                <span className="text-sm font-semibold text-gray-700">Sems</span>
+              </div>
+            </div>
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center flex flex-col justify-center">
+              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-1">Completed</span>
+              <div className="flex items-center justify-center gap-1">
+                <input required type="number" name="completed_semesters" className="w-8 bg-transparent text-lg font-bold text-blue-700 text-center p-0 border-none focus:ring-0" value={formData.completed_semesters} onChange={handleChange} />
+                <span className="text-sm font-semibold text-blue-700">Sems</span>
+              </div>
+            </div>
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 text-center flex flex-col justify-center">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Total Req.</span>
+              <div className="flex items-center justify-center gap-1">
+                <input required type="number" name="total_program_credits" className="w-10 bg-transparent text-lg font-bold text-gray-900 text-center p-0 border-none focus:ring-0" value={formData.total_program_credits} onChange={handleChange} />
+                <span className="text-sm font-semibold text-gray-700">Cr</span>
+              </div>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <div style={{ flex: 1 }}>
-              <label>Total Semesters in Program</label>
-              <input required type="number" name="total_semesters" className="form-control" value={formData.total_semesters} onChange={handleChange} />
+
+          <div className="grid grid-cols-2 gap-4">
+             <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Expected Grad Year</label>
+              <input required type="number" name="expected_grad_year" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" value={formData.expected_grad_year} onChange={handleChange} />
             </div>
-            <div style={{ flex: 1 }}>
-              <label>Expected Graduation Year</label>
-              <input required type="number" name="expected_grad_year" className="form-control" value={formData.expected_grad_year} onChange={handleChange} />
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <div style={{ flex: 1 }}>
-              <label>Total Program Credits</label>
-              <input required type="number" name="total_program_credits" className="form-control" value={formData.total_program_credits} onChange={handleChange} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label>Semesters Already Completed</label>
-              <input required type="number" name="completed_semesters" className="form-control" value={formData.completed_semesters} onChange={handleChange} />
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <div style={{ flex: 1 }}>
-              <label>Grading System (Max GPA)</label>
-              <select name="grading_system" className="form-control" value={formData.grading_system} onChange={handleChange}>
-                <option value="10">10-Point Scale</option>
-                <option value="4">4-Point Scale</option>
-                <option value="5">5-Point Scale</option>
-              </select>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label>Gender (For ML Predictor)</label>
-              <select name="gender" className="form-control" value={formData.gender} onChange={handleChange}>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Gender (For ML Predictor)</label>
+              <select name="gender" className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none" value={formData.gender} onChange={handleChange}>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </select>
             </div>
           </div>
-          
-          <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: '16px', padding: '12px' }}>
-            {loading ? 'Saving...' : 'Save & Continue'}
-          </button>
+
+          <div className="pt-6 flex items-center justify-between">
+            <div className="flex gap-4">
+              <button type="button" className="text-sm font-medium text-gray-500 hover:text-gray-900">Back</button>
+            </div>
+            <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-3 px-6 rounded-xl transition-colors flex items-center gap-2 shadow-sm shadow-blue-600/20">
+              {loading ? 'Saving...' : 'Save & Continue'}
+              {!loading && <ArrowRight size={16} />}
+            </button>
+          </div>
         </form>
       </div>
     </div>
