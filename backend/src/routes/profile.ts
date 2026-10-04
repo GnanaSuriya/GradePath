@@ -22,6 +22,13 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
 router.post('/', authenticate, async (req: AuthRequest, res) => {
   const { name, university, degree, specialization, total_semesters, expected_grad_year, total_program_credits, grading_system, current_semester, completed_semesters, gender, semesters } = req.body;
   
+  const parsedTotalSems = total_semesters ? parseInt(total_semesters) : null;
+  const parsedGradYear = expected_grad_year ? parseInt(expected_grad_year) : null;
+  const parsedCredits = total_program_credits ? parseInt(total_program_credits) : null;
+  const parsedCompletedSems = completed_semesters ? parseInt(completed_semesters) : 0;
+  const parsedGradingSystem = grading_system ? parseFloat(grading_system) : 10;
+  const parsedCurrentSem = current_semester ? parseInt(current_semester) : parsedCompletedSems + 1;
+
   const client = await db.connect();
   
   try {
@@ -39,14 +46,14 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
           university = $1, degree = $2, specialization = $3, total_semesters = $4, expected_grad_year = $5,
           total_program_credits = $6, grading_system = $7, current_semester = $8, completed_semesters = $9, gender = $10
          WHERE user_id = $11`,
-        [university, degree, specialization, total_semesters, expected_grad_year, total_program_credits, grading_system, current_semester, completed_semesters, gender, req.user?.id]
+        [university, degree, specialization, parsedTotalSems, parsedGradYear, parsedCredits, parsedGradingSystem, parsedCurrentSem, parsedCompletedSems, gender, req.user?.id]
       );
     } else {
       await client.query(
         `INSERT INTO "AcademicProfile" 
         (user_id, university, degree, specialization, total_semesters, expected_grad_year, total_program_credits, grading_system, current_semester, completed_semesters, gender) 
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-        [req.user?.id, university, degree, specialization, total_semesters, expected_grad_year, total_program_credits, grading_system, current_semester, completed_semesters, gender]
+        [req.user?.id, university, degree, specialization, parsedTotalSems, parsedGradYear, parsedCredits, parsedGradingSystem, parsedCurrentSem, parsedCompletedSems, gender]
       );
     }
 
