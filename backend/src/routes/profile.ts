@@ -39,7 +39,7 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
     }
     
     // AcademicProfile UPSERT
-    const existingProfile = (await client.query('SELECT id FROM "AcademicProfile" WHERE user_id = $1', [req.user?.id])).rows[0];
+    const existingProfile = (await client.query('SELECT user_id FROM "AcademicProfile" WHERE user_id = $1', [req.user?.id])).rows[0];
     if (existingProfile) {
       await client.query(
         `UPDATE "AcademicProfile" SET
