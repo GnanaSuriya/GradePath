@@ -1,17 +1,68 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Moon, Sun, Monitor, Bell, Shield, Download, Trash2, LogOut } from 'lucide-react';
+import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState<string>(localStorage.getItem('gradepath-theme') || 'system');
   const [emailNotifs, setEmailNotifs] = useState(true);
   const [pushNotifs, setPushNotifs] = useState(false);
-  // const [loading, setLoading] = useState(false);
+  
+  const [showFirstConfirm, setShowFirstConfirm] = useState(false);
+  const [showFinalConfirm, setShowFinalConfirm] = useState(false);
+  const [deleteInput, setDeleteInput] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to log out?')) {
       logout();
+    }
+  };
+
+  const reAuthForDelete = useGoogleLogin({
+    onSuccess: (codeResponse) => {
+      setGoogleAccessToken(codeResponse.access_token);
+      setShowFirstConfirm(false);
+      setShowFinalConfirm(true);
+      setDeleteInput('');
+    },
+    onError: (error) => {
+      console.log('Login Failed:', error);
+      alert('Google authentication failed. Cannot proceed with deletion.');
+    }
+  });
+
+  const handleDeleteAccount = async () => {
+    if (deleteInput !== 'DELETE') return;
+    if (!googleAccessToken) {
+       alert('Google authentication required.');
+       return;
+    }
+    
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      await axios.delete(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/account`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { access_token: googleAccessToken }
+      });
+      
+      // Cleanup
+      localStorage.clear();
+      sessionStorage.clear();
+      alert('Account deleted successfully. Your GradePath account and associated data have been permanently deleted.');
+      window.location.href = '/login';
+    } catch (err) {
+      console.error(err);
+      alert('We couldn\'t delete your account. Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setShowFinalConfirm(false);
     }
   };
 
@@ -145,7 +196,10 @@ const Settings = () => {
                 <h3 className="font-bold text-error">Delete Account</h3>
                 <p className="text-xs text-on-error-container mt-1">Permanently remove your account and all associated data.</p>
               </div>
-              <button className="flex items-center justify-center gap-2 bg-error text-on-error hover:bg-error/90 font-bold py-2 px-4 rounded-xl transition-colors whitespace-nowrap text-sm border-none">
+              <button 
+                onClick={() => setShowFirstConfirm(true)}
+                className="flex items-center justify-center gap-2 bg-error text-on-error hover:bg-error/90 font-bold py-2 px-4 rounded-xl transition-colors whitespace-nowrap text-sm border-none"
+              >
                 <Trash2 size={16} /> Delete Account
               </button>
             </div>
@@ -167,6 +221,80 @@ const Settings = () => {
         </div>
 
       </div>
+
+      {/* First Confirmation Modal */}
+      {showFirstConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-surface rounded-xl shadow-lg max-w-md w-full p-6 border border-outline-variant">
+            <h3 className="text-xl font-bold text-on-surface mb-2">Delete your account?</h3>
+            <p className="text-on-surface-variant mb-4 text-sm">
+              This will permanently delete your GradePath account and all academic data associated with it. This action cannot be undone.
+            </p>
+            <ul className="list-disc pl-5 mb-6 text-sm text-on-surface-variant">
+              <li>Google-linked GradePath account</li>
+              <li>Academic profile</li>
+              <li>Semester history</li>
+              <li>Subject records</li>
+              <li>GPA/CGPA data</li>
+            </ul>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowFirstConfirm(false)}
+                className="px-5 py-2.5 rounded-lg font-bold text-on-surface hover:bg-surface-container transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => reAuthForDelete()}
+                className="px-5 py-2.5 rounded-lg font-bold bg-primary text-on-primary hover:bg-primary/90 transition-colors"
+              >
+                Continue (Verify with Google)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Final Confirmation Modal */}
+      {showFinalConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-surface rounded-xl shadow-lg max-w-md w-full p-6 border border-outline-variant">
+            <h3 className="text-xl font-bold text-error mb-2">Permanently delete account?</h3>
+            <p className="text-on-surface-variant mb-4 text-sm">
+              Your GradePath account and all associated academic data will be permanently deleted. You will not be able to recover this data.
+            </p>
+            <div className="mb-6">
+              <label className="block text-sm font-bold text-on-surface mb-2">
+                Type <span className="text-error font-mono">DELETE</span> to confirm:
+              </label>
+              <input
+                type="text"
+                value={deleteInput}
+                onChange={(e) => setDeleteInput(e.target.value)}
+                className="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 text-on-surface focus:ring-2 focus:ring-error font-mono uppercase"
+                placeholder="DELETE"
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowFinalConfirm(false)}
+                className="px-5 py-2.5 rounded-lg font-bold text-on-surface hover:bg-surface-container transition-colors"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteInput !== 'DELETE' || isDeleting}
+                className="px-5 py-2.5 rounded-lg font-bold bg-error text-on-error hover:bg-error/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDeleting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> : null}
+                Delete my account permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

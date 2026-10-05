@@ -36,6 +36,7 @@ import profileRouter from './routes/profile';
 import semestersRouter from './routes/semesters';
 import subjectsRouter from './routes/subjects';
 import timetableRouter from './routes/timetable';
+import accountRouter from './routes/account';
 
 // Basic Health Check
 app.get('/api/health', (req, res) => {
@@ -48,6 +49,7 @@ app.use('/api/profile', profileRouter);
 app.use('/api/semesters', semestersRouter);
 app.use('/api/current-semester/subjects', subjectsRouter);
 app.use('/api/timetable', timetableRouter);
+app.use('/api/account', accountRouter);
 
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
