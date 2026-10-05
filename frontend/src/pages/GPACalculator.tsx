@@ -113,6 +113,14 @@ const GPACalculator = () => {
         credits: calcTotalCredits
       }, { headers });
       
+      // Update completed_semesters to ensure next current semester increments
+      if (profile) {
+        await axios.post(`${baseUrl}/profile`, {
+          ...profile,
+          completed_semesters: Math.max(profile.completed_semesters || 0, semNum)
+        }, { headers });
+      }
+      
       alert('Saved successfully!');
       navigate('/history');
     } catch (err) {
@@ -185,17 +193,6 @@ const GPACalculator = () => {
       }));
 
       await axios.post(`${baseUrl}/current-semester/subjects/batch`, { subjects: payload }, { headers });
-      
-      const semNum = (profile?.completed_semesters || 0) + 1;
-      const calcTotalCredits = payload.reduce((sum, s) => sum + Number(s.credits), 0);
-      const calcTotalPoints = payload.reduce((sum, s) => sum + (Number(s.credits) * s.grade_points), 0);
-      const calcGPA = calcTotalCredits > 0 ? (calcTotalPoints / calcTotalCredits) : 0;
-
-      await axios.post(`${baseUrl}/semesters`, {
-        semester_number: semNum,
-        gpa: calcGPA,
-        credits: calcTotalCredits
-      }, { headers });
       
       setMode('manual');
       // Fetch fresh subjects, ensuring we ONLY get what was just saved
