@@ -25,6 +25,7 @@ const GPACalculator = () => {
   // Manual state
   const [saving, setSaving] = useState(false);
   const [semesterSelection, setSemesterSelection] = useState<number>(1);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Grade Points based on 10 point scale by default, or 4 point
   const gradeOptions = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -61,31 +62,15 @@ const GPACalculator = () => {
   }, []);
 
   const handleAddRow = () => {
-    setSubjects([...subjects, { id: 'temp-'+Date.now(), name: '', code: '', credits: 3, grade: 'A', saved: false }]);
+    setSubjects(prev => [...prev, { id: 'temp-'+crypto.randomUUID(), name: '', code: '', credits: 3, grade: 'A', saved: false }]);
   };
 
   const handleUpdateSubject = (id: string | number, field: string, value: any) => {
-    setSubjects(subjects.map(s => s.id === id ? { ...s, [field]: value, saved: false } : s));
+    setSubjects(prev => prev.map(s => s.id === id ? { ...s, [field]: value, saved: false } : s));
   };
 
-  const handleRemoveSubject = async (id: string | number) => {
-    // If it's a temp row, just remove it
-    if (typeof id === 'string' && id.startsWith('temp-')) {
-       setSubjects(subjects.filter(s => s.id !== id));
-       return;
-    }
-    
-    // If it's a real db row, optionally delete it from DB immediately or wait for save.
-    // For simplicity, we'll mark it for removal or just delete it now.
-    try {
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      await axios.delete(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setSubjects(subjects.filter(s => s.id !== id));
-    } catch (err) {
-      alert('Error deleting subject');
-    }
+  const handleRemoveSubject = (id: string | number) => {
+    setSubjects(prev => prev.filter(s => s.id !== id));
   };
 
   const handleSaveManual = async () => {
@@ -258,7 +243,14 @@ const GPACalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {subjects.map((sub, i) => (
+                    {subjects.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-8 text-center text-on-surface-variant font-medium">
+                          No subjects added. Click "Add Row" to start.
+                        </td>
+                      </tr>
+                    ) : (
+                      subjects.map((sub, i) => (
                       <tr key={sub.id} className="border-b border-outline-variant last:border-none hover:bg-surface-container-low transition-colors group">
                         <td className="py-2 px-2">
                           <input 
@@ -299,13 +291,14 @@ const GPACalculator = () => {
                         <td className="py-2 px-2 text-right">
                           <button 
                             onClick={() => handleRemoveSubject(sub.id)}
-                            className="p-2 rounded-lg text-outline hover:bg-error-container hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                            title="Delete subject"
+                            className="p-2 rounded-lg text-outline hover:bg-error-container hover:text-error transition-colors"
                           >
                             <Trash2 size={16} />
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )))}
                   </tbody>
                 </table>
               </div>
@@ -356,6 +349,25 @@ const GPACalculator = () => {
                 </button>
               </div>
 
+            </div>
+
+            {/* Danger Zone */}
+            <div className="mt-8 border-t border-error/20 pt-8">
+              <div className="bg-error-container/10 border border-error/20 rounded-DEFAULT p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h3 className="font-bold text-error flex items-center gap-2">
+                    <AlertTriangle size={18} />
+                    Danger Zone
+                  </h3>
+                  <p className="text-sm text-on-surface-variant mt-1">Remove all subjects and reset this GPA calculation.</p>
+                </div>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="whitespace-nowrap py-2.5 px-6 rounded-lg bg-error text-on-error font-bold shadow-sm hover:bg-error/90 transition-colors"
+                >
+                  Delete Everything
+                </button>
+              </div>
             </div>
 
           </div>
@@ -507,6 +519,35 @@ const GPACalculator = () => {
         )}
 
       </div>
+
+      {/* Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-surface rounded-xl shadow-lg max-w-md w-full p-6 border border-outline-variant">
+            <h3 className="text-xl font-bold text-on-surface mb-2">Delete Everything?</h3>
+            <p className="text-on-surface-variant mb-6 text-sm">
+              This will remove all subjects currently entered in the GPA Calculator and reset the calculator. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-5 py-2.5 rounded-lg font-bold text-on-surface hover:bg-surface-container transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setSubjects([]);
+                  setShowDeleteConfirm(false);
+                }}
+                className="px-5 py-2.5 rounded-lg font-bold bg-error text-on-error hover:bg-error/90 transition-colors"
+              >
+                Delete Everything
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
