@@ -30,23 +30,31 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-// Save extracted subjects (from VTOP)
+// Save extracted subjects (from VTOP) or Manual GPA Calculator
 router.post('/batch', authenticate, async (req: AuthRequest, res) => {
   const { subjects } = req.body;
+  const client = await db.connect();
   try {
     const semId = await getCurrentSemesterId(req.user?.id as string);
     
-    // Clear old subjects for current semester if overriding? The prompt says "save to current semester".
-    // For now, let's just insert them.
+    await client.query('BEGIN');
+    // Clear old subjects for current semester to prevent duplicates/resurrections
+    await client.query('DELETE FROM "Subject" WHERE semester_id = $1', [semId]);
+
+    // Insert new subjects
     for (const sub of subjects) {
-       await db.query(
+       await client.query(
          'INSERT INTO "Subject" (semester_id, name, code, credits, grade) VALUES ($1, $2, $3, $4, $5)', 
-         [semId, sub.name, sub.code, sub.credits, null]
+         [semId, sub.name, sub.code, sub.credits, sub.grade || null]
        );
     }
+    await client.query('COMMIT');
     res.json({ success: true });
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ error: 'Server error' });
+  } finally {
+    client.release();
   }
 });
 
@@ -60,6 +68,17 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
       'UPDATE "Subject" SET grade = $1, grade_points = $2 WHERE id = $3 AND semester_id = $4', 
       [grade, grade_points, req.params.id, semId]
     );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete all subjects for current semester
+router.delete('/all', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const semId = await getCurrentSemesterId(req.user?.id as string);
+    await db.query('DELETE FROM "Subject" WHERE semester_id = $1', [semId]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });

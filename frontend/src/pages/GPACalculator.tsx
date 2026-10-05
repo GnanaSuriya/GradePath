@@ -26,6 +26,7 @@ const GPACalculator = () => {
   const [saving, setSaving] = useState(false);
   const [semesterSelection, setSemesterSelection] = useState<number>(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
 
   // Grade Points based on 10 point scale by default, or 4 point
   const gradeOptions = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -105,6 +106,27 @@ const GPACalculator = () => {
     }
   };
 
+  const handleDeleteEverything = async () => {
+    setIsDeletingAll(true);
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      const baseUrl = import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api';
+      
+      await axios.delete(`${baseUrl}/current-semester/subjects/all`, { headers });
+      
+      setSubjects([]);
+      setVtopPreview([]);
+      setVtopText('');
+      setVtopStep(1);
+      setShowDeleteConfirm(false);
+    } catch (err) {
+      alert('Failed to delete everything. Please try again.');
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+
   const handleParseVTOP = async () => {
     if (!vtopText.trim()) return;
     setIsParsing(true);
@@ -148,9 +170,12 @@ const GPACalculator = () => {
 
       await axios.post(`${baseUrl}/current-semester/subjects/batch`, { subjects: payload }, { headers });
       setMode('manual');
-      // Fetch fresh subjects
+      // Fetch fresh subjects, ensuring we ONLY get what was just saved
       const subRes = await axios.get(`${baseUrl}/current-semester/subjects`, { headers });
       setSubjects(subRes.data.map((s:any) => ({...s, saved: true})));
+      setVtopPreview([]);
+      setVtopText('');
+      setVtopStep(1);
     } catch (err) {
       alert('Failed to save imported subjects.');
     } finally {
@@ -536,12 +561,11 @@ const GPACalculator = () => {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  setSubjects([]);
-                  setShowDeleteConfirm(false);
-                }}
-                className="px-5 py-2.5 rounded-lg font-bold bg-error text-on-error hover:bg-error/90 transition-colors"
+                onClick={handleDeleteEverything}
+                disabled={isDeletingAll}
+                className="px-5 py-2.5 rounded-lg font-bold bg-error text-on-error hover:bg-error/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
+                {isDeletingAll ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> : null}
                 Delete Everything
               </button>
             </div>
