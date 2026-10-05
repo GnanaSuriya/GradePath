@@ -120,22 +120,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </button>
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-full border border-outline-variant text-sm font-medium text-on-surface">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              Fall 2024 • Semester 5
-              <span className="text-primary ml-1">On Track</span>
+              Semester {profile ? profile.completed_semesters + 1 : '...'}
+              <span className="text-primary ml-1">— On Track</span>
             </div>
           </div>
           
           <div className="flex items-center gap-3 lg:gap-6">
-            <div className="flex items-center gap-2">
-              <button className="p-2 text-outline hover:text-on-surface-variant transition-colors">
-                <Sun size={20} />
-              </button>
-              <button className="p-2 text-outline hover:text-on-surface-variant transition-colors relative">
-                <Bell size={20} />
-                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
-            </div>
-            
             <div className="flex items-center gap-3 border-l border-outline-variant pl-3 lg:pl-6">
               <div className="hidden sm:block text-right">
                 <div className="text-sm font-bold text-on-surface">{user?.name || 'Student'}</div>

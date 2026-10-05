@@ -91,8 +91,6 @@ const GPACalculator = () => {
       // Filter out empty rows
       const validSubjects = subjects.filter(s => s.name.trim() !== '' && s.credits > 0);
       
-      // Update each existing or create new ones via batch
-      // Since backend batch endpoint replaces/adds, let's just use it
       const payload = validSubjects.map(s => ({
          name: s.name,
          code: s.code || 'NA',
@@ -104,8 +102,19 @@ const GPACalculator = () => {
 
       await axios.post(`${baseUrl}/current-semester/subjects/batch`, { subjects: payload }, { headers });
       
+      const semNum = (profile?.completed_semesters || 0) + 1;
+      const calcTotalCredits = validSubjects.reduce((sum, s) => sum + Number(s.credits), 0);
+      const calcTotalPoints = validSubjects.reduce((sum, s) => sum + (Number(s.credits) * (gradePoints[s.grade] || 0)), 0);
+      const calcGPA = calcTotalCredits > 0 ? (calcTotalPoints / calcTotalCredits) : 0;
+
+      await axios.post(`${baseUrl}/semesters`, {
+        semester_number: semNum,
+        gpa: calcGPA,
+        credits: calcTotalCredits
+      }, { headers });
+      
       alert('Saved successfully!');
-      navigate('/dashboard');
+      navigate('/history');
     } catch (err) {
       alert('Failed to save.');
     } finally {
@@ -176,6 +185,18 @@ const GPACalculator = () => {
       }));
 
       await axios.post(`${baseUrl}/current-semester/subjects/batch`, { subjects: payload }, { headers });
+      
+      const semNum = (profile?.completed_semesters || 0) + 1;
+      const calcTotalCredits = payload.reduce((sum, s) => sum + Number(s.credits), 0);
+      const calcTotalPoints = payload.reduce((sum, s) => sum + (Number(s.credits) * s.grade_points), 0);
+      const calcGPA = calcTotalCredits > 0 ? (calcTotalPoints / calcTotalCredits) : 0;
+
+      await axios.post(`${baseUrl}/semesters`, {
+        semester_number: semNum,
+        gpa: calcGPA,
+        credits: calcTotalCredits
+      }, { headers });
+      
       setMode('manual');
       // Fetch fresh subjects, ensuring we ONLY get what was just saved
       const subRes = await axios.get(`${baseUrl}/current-semester/subjects`, { headers });
