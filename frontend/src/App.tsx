@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import axios from 'axios';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LayoutDashboard, Calculator, TrendingUp, Clock, BarChart2, UploadCloud, Sparkles, User, Settings, Sun, Bell, Menu, X, ChevronDown, GraduationCap } from 'lucide-react';
 
@@ -49,6 +50,22 @@ const SidebarItem = ({ to, icon: Icon, label, badge, badgeColor, end, onClick }:
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const res = await axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setProfile(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    if (user) fetchProfile();
+  }, [user]);
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
@@ -109,12 +126,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
           
           <div className="flex items-center gap-3 lg:gap-6">
-            <button className="hidden md:flex items-center gap-2 text-sm font-medium text-on-surface-variant hover:text-on-surface bg-surface-container-low px-3 py-1.5 rounded-lg border border-outline-variant">
-              <UploadCloud size={16} />
-              VIT Chennai
-              <ChevronDown size={14} />
-            </button>
-            
             <div className="flex items-center gap-2">
               <button className="p-2 text-outline hover:text-on-surface-variant transition-colors">
                 <Sun size={20} />
@@ -128,7 +139,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="flex items-center gap-3 border-l border-outline-variant pl-3 lg:pl-6">
               <div className="hidden sm:block text-right">
                 <div className="text-sm font-bold text-on-surface">{user?.name || 'Student'}</div>
-                <div className="text-[11px] font-medium text-on-surface-variant">B.Tech CSE • 9.12</div>
+                <div className="text-[11px] font-medium text-on-surface-variant">
+                  {profile ? `${profile.degree} ${profile.specialization}` : 'Loading...'}
+                </div>
               </div>
               {user?.picture ? (
                 <img src={user.picture} alt="Profile" className="w-10 h-10 rounded-full object-cover border border-outline-variant shadow-sm" />

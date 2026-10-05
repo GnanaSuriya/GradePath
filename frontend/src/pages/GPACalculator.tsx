@@ -8,6 +8,7 @@ const GPACalculator = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
+  const [pastSemesters, setPastSemesters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Core data
@@ -40,19 +41,25 @@ const GPACalculator = () => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
         
-        const [subRes, profRes] = await Promise.all([
+        const [subRes, profRes, semRes] = await Promise.all([
           axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/current-semester/subjects`, { headers }),
-          axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, { headers })
+          axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/profile`, { headers }),
+          axios.get(`${(import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : 'http://localhost:5000/api')}/semesters`, { headers })
         ]);
         
         setProfile(profRes.data);
+        const history = semRes.data.filter((s: any) => s.semester_number !== 999);
+        setPastSemesters(history);
+        
         if (subRes.data && subRes.data.length > 0) {
            setSubjects(subRes.data.map((s:any) => ({...s, saved: true})));
         } else {
            // Provide empty subject
            setSubjects([{ id: 'temp-'+Date.now(), name: '', code: '', credits: 3, grade: 'A', saved: false }]);
         }
-        setSemesterSelection(profRes.data.current_semester || (profRes.data.completed_semesters + 1));
+        
+        const calcSem = (profRes.data.completed_semesters || 0) + 1;
+        setSemesterSelection(calcSem);
       } catch (err) {
         console.error(err);
       } finally {
@@ -189,11 +196,35 @@ const GPACalculator = () => {
     </div>
   );
 
+  if (!profile || Object.keys(profile).length === 0) {
+    return (
+      <div className="flex flex-col h-[60vh] items-center justify-center bg-surface p-4 text-center">
+        <div className="w-16 h-16 bg-surface-container-low text-primary rounded-full flex items-center justify-center mb-4">
+          <AlertTriangle size={32} />
+        </div>
+        <h2 className="text-xl font-bold text-on-surface mb-2">Profile Incomplete</h2>
+        <p className="text-on-surface-variant max-w-md mx-auto mb-6">Complete your Profile Setup to use the GPA Calculator.</p>
+        <Link to="/profile" className="bg-primary text-on-primary font-bold py-2.5 px-6 rounded-lg hover:bg-primary/90 transition-colors">
+          Go to Profile Setup
+        </Link>
+      </div>
+    );
+  }
+
+  const currentSemesterNumber = (profile.completed_semesters || 0) + 1;
+
   // Calculations for Manual Mode
   const validForCalc = subjects.filter(s => s.name.trim() !== '' && s.credits > 0);
-  const totalCredits = validForCalc.reduce((sum, s) => sum + Number(s.credits), 0);
-  const totalPoints = validForCalc.reduce((sum, s) => sum + (Number(s.credits) * (gradePoints[s.grade] || 0)), 0);
-  const currentGPA = totalCredits > 0 ? (totalPoints / totalCredits) : 0;
+  const currentTotalCredits = validForCalc.reduce((sum, s) => sum + Number(s.credits), 0);
+  const currentTotalPoints = validForCalc.reduce((sum, s) => sum + (Number(s.credits) * (gradePoints[s.grade] || 0)), 0);
+  const currentGPA = currentTotalCredits > 0 ? (currentTotalPoints / currentTotalCredits) : 0;
+  
+  const pastTotalCredits = pastSemesters.reduce((sum, s) => sum + s.credits, 0);
+  const pastTotalPoints = pastSemesters.reduce((sum, s) => sum + (s.credits * s.gpa), 0);
+  
+  const overallCredits = pastTotalCredits + currentTotalCredits;
+  const overallPoints = pastTotalPoints + currentTotalPoints;
+  const projectedCGPA = overallCredits > 0 ? (overallPoints / overallCredits) : 0;
 
   return (
     <main className="w-full min-h-screen pt-8 pb-20 lg:pb-10 bg-surface px-4 lg:px-8 max-w-5xl mx-auto">
@@ -201,8 +232,8 @@ const GPACalculator = () => {
         
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-on-surface tracking-tight">GPA Calculator</h1>
-            <p className="text-sm text-on-surface-variant font-medium mt-1">Plan and save your current semester grades.</p>
+            <h1 className="text-3xl font-bold text-on-surface tracking-tight">Semester {currentSemesterNumber} GPA Calculator</h1>
+            <p className="text-sm text-on-surface-variant font-medium mt-1">Calculate your Semester {currentSemesterNumber} GPA and projected CGPA.</p>
           </div>
           <div className="flex bg-surface-container-low rounded-lg border border-outline-variant p-1">
             <button 
@@ -235,7 +266,7 @@ const GPACalculator = () => {
                   value={semesterSelection}
                   onChange={(e) => setSemesterSelection(Number(e.target.value))}
                 >
-                  <option value={profile?.current_semester || 1}>Current Semester (Sem {profile?.current_semester || 1})</option>
+                  <option value={currentSemesterNumber}>Current Semester (Sem {currentSemesterNumber})</option>
                   <option value={999}>Custom / Planning</option>
                 </select>
               </div>
@@ -330,27 +361,48 @@ const GPACalculator = () => {
             </div>
 
             {/* Step 3 & 4: Calculate & Save */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
-              <div className="bg-primary rounded-DEFAULT p-6 shadow-sm text-on-primary flex flex-col justify-between">
-                <div>
-                  <h2 className="font-bold mb-4 flex items-center gap-2 opacity-90">
-                    <span className="w-6 h-6 rounded-full bg-surface-container-lowest/20 flex items-center justify-center text-xs">3</span>
-                    Calculation Result
-                  </h2>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[48px] font-extrabold tracking-tighter leading-none">{currentGPA.toFixed(2)}</span>
-                    <span className="text-sm font-medium opacity-80">SGPA</span>
+              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-primary rounded-DEFAULT p-6 shadow-sm text-on-primary flex flex-col justify-between">
+                  <div>
+                    <h2 className="font-bold mb-4 flex items-center gap-2 opacity-90">
+                      <span className="w-6 h-6 rounded-full bg-surface-container-lowest/20 flex items-center justify-center text-xs">3</span>
+                      Current Semester
+                    </h2>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-[42px] font-extrabold tracking-tighter leading-none">{currentGPA.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs font-bold text-on-primary/80 uppercase tracking-widest">Semester {currentSemesterNumber} GPA</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/20">
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Credits</div>
+                      <div className="text-xl font-bold">{currentTotalCredits}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Grade Points</div>
+                      <div className="text-xl font-bold">{currentTotalPoints}</div>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/20">
+
+                <div className="bg-primary-container rounded-DEFAULT p-6 shadow-sm text-on-primary-container flex flex-col justify-between">
                   <div>
-                    <div className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Total Credits</div>
-                    <div className="text-xl font-bold">{totalCredits}</div>
+                    <h2 className="font-bold mb-4 flex items-center gap-2 opacity-90">
+                      <Sparkles size={18} />
+                      CGPA After This Semester
+                    </h2>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-[42px] font-extrabold tracking-tighter leading-none">{projectedCGPA.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs font-bold text-on-primary-container/80 uppercase tracking-widest">Projected Cumulative</p>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Grade Points</div>
-                    <div className="text-xl font-bold">{totalPoints}</div>
+                  <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-black/10">
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Total Credits</div>
+                      <div className="text-xl font-bold">{overallCredits}</div>
+                    </div>
                   </div>
                 </div>
               </div>
